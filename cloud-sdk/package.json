@@ -1,0 +1,28 @@
+{
+  "name": "@lsky/cloud-sdk",
+  "version": "0.1.0",
+  "description": "lsky Cloud SDK — OpenNebula (KVM) + Ceph/ZFS storage, auth helpers, and server agent stubs",
+  "license": "MIT",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "import": "./src/index.ts",
+      "default": "./src/index.ts"
+    }
+  },
+  "files": [
+    "dist",
+    "src"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "test": "vitest run --config ../../vitest.config.mts",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "engines": {
+    "node": "^18.20.2 || >=20.9.0"
+  }
+}

@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="1012px" height="1000px" viewBox="0 0 1012 1000" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>icon</title>
+    <defs>
+        <linearGradient x1="82.6324281%" y1="-28.0175424%" x2="41.1150133%" y2="77.3593697%" id="linearGradient-1">
+            <stop stop-color="#FFFFFF" stop-opacity="0.476569329" offset="0%"></stop>
+            <stop stop-color="#032FFF" stop-opacity="0.994405262" offset="55.826508%"></stop>
+            <stop stop-color="#002CFF" offset="100%"></stop>
+        </linearGradient>
+        <filter x="-0.8%" y="-0.9%" width="101.6%" height="102.6%" filterUnits="objectBoundingBox" id="filter-2">
+            <feOffset dx="0" dy="2" in="SourceAlpha" result="shadowOffsetOuter1"></feOffset>
+            <feGaussianBlur stdDeviation="2" in="shadowOffsetOuter1" result="shadowBlurOuter1"></feGaussianBlur>
+            <feColorMatrix values="0 0 0 0 0.513213227   0 0 0 0 0.513213227   0 0 0 0 0.513213227  0 0 0 0.5 0" type="matrix" in="shadowBlurOuter1" result="shadowMatrixOuter1"></feColorMatrix>
+            <feMerge>
+                <feMergeNode in="shadowMatrixOuter1"></feMergeNode>
+                <feMergeNode in="SourceGraphic"></feMergeNode>
+            </feMerge>
+        </filter>
+    </defs>
+    <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <path d="M336.852815,666.666667 C448.190201,666.666667 559.527587,666.666667 674.238833,666.666667 C674.238833,776.666667 674.238833,886.666667 674.238833,1000 C562.901447,1000 451.564061,1000 336.852815,1000 C336.852815,890 336.852815,780 336.852815,666.666667 Z" id="Path" fill="#4AABFB" fill-rule="nonzero"></path>
+        <path d="M-0.53320312,666.666667 C110.804183,666.666667 222.141569,666.666667 336.852815,666.666667 C336.852815,776.666667 336.852815,886.666667 336.852815,1000 C225.515429,1000 114.178043,1000 -0.53320312,1000 C-0.53320312,890 -0.53320312,780 -0.53320312,666.666667 Z" id="Path" fill="#1182FC" fill-rule="nonzero"></path>
+        <path d="M674.238833,666.666667 C785.576219,666.666667 896.913605,666.666667 1011.62485,666.666667 C1011.62485,776.666667 1011.62485,886.666667 1011.62485,1000 C900.287466,1000 788.95008,1000 674.238833,1000 C674.238833,890 674.238833,780 674.238833,666.666667 Z" id="Path" fill="#72CEFB" fill-rule="nonzero"></path>
+        <path d="M336.852815,333.333333 C448.190201,333.333333 559.527587,333.333333 674.238833,333.333333 C674.238833,443.333333 674.238833,553.333333 674.238833,666.666667 C562.901447,666.666667 451.564061,666.666667 336.852815,666.666667 C336.852815,556.666667 336.852815,446.666667 336.852815,333.333333 Z" id="Path" fill="#85CBFB" fill-rule="nonzero"></path>
+        <path d="M-0.53320312,333.333333 C110.804183,333.333333 222.141569,333.333333 336.852815,333.333333 C336.852815,443.333333 336.852815,553.333333 336.852815,666.666667 C225.515429,666.666667 114.178043,666.666667 -0.53320312,666.666667 C-0.53320312,556.666667 -0.53320312,446.666667 -0.53320312,333.333333 Z" id="Path" fill="#4399FB" fill-rule="nonzero"></path>
+        <path d="M674.238833,333.333333 C785.576219,333.333333 896.913605,333.333333 1011.62485,333.333333 C1011.62485,443.333333 1011.62485,553.333333 1011.62485,666.666667 C900.287466,666.666667 788.95008,666.666667 674.238833,666.666667 C674.238833,556.666667 674.238833,446.666667 674.238833,333.333333 Z" id="Path" fill="#ABE7FB" fill-rule="nonzero"></path>
+        <path d="M337.865986,0 C449.203372,0 560.540758,0 675.252005,0 C675.252005,110 675.252005,220 675.252005,333.333333 C563.914619,333.333333 452.577233,333.333333 337.865986,333.333333 C337.865986,223.333333 337.865986,113.333333 337.865986,0 Z" id="Path" fill="#C6E7FA" fill-rule="nonzero"></path>
+        <path d="M0.479968106,0 C111.817354,0 223.15474,0 337.865986,0 C337.865986,110 337.865986,220 337.865986,333.333333 C226.5286,333.333333 115.191214,333.333333 0.479968106,333.333333 C0.479968106,223.333333 0.479968106,113.333333 0.479968106,0 Z" id="Path" fill="#8FB6FA" fill-rule="nonzero"></path>
+        <path d="M675.252005,0 C786.589391,0 897.926777,0 1012.63802,0 C1012.63802,110 1012.63802,220 1012.63802,333.333333 C901.300637,333.333333 789.963251,333.333333 675.252005,333.333333 C675.252005,223.333333 675.252005,113.333333 675.252005,0 Z" id="Path" fill="#E8F9FB" fill-rule="nonzero"></path>
+        <rect id="Rectangle" fill="url(#linearGradient-1)" opacity="0.276021322" x="0" y="0" width="1011" height="1000"></rect>
+        <g id="Group-2" filter="url(#filter-2)" transform="translate(64, 227)" fill="#FFFFFF" stroke="#FFFFFF" stroke-opacity="0.64482917">
+            <rect id="Rectangle" x="833.5" y="424.5" width="49" height="60"></rect>
+            <rect id="Rectangle" x="784.5" y="424.5" width="49" height="60"></rect>
+            <rect id="Rectangle" x="784.5" y="485.5" width="49" height="34"></rect>
+            <rect id="Rectangle" x="338.5" y="485.5" width="49" height="60"></rect>
+            <rect id="Rectangle" x="387.5" y="485.5" width="49" height="60"></rect>
+            <rect id="Rectangle" x="437.5" y="485.5" width="49" height="60"></rect>
+            <rect id="Rectangle" x="487.5" y="485.5" width="49" height="60"></rect>
+            <rect id="Rectangle" x="536.5" y="485.5" width="49" height="60"></rect>
+            <rect id="Rectangle" x="586.5" y="485.5" width="49" height="60"></rect>
+            <rect id="Rectangle" x="635.5" y="485.5" width="49" height="60"></rect>
+            <rect id="Rectangle" x="685.5" y="485.5" width="49" height="60"></rect>
+            <rect id="Rectangle" x="734.5" y="485.5" width="49" height="60"></rect>
+            <rect id="Rectangle" x="833.5" y="363.5" width="49" height="60"></rect>
+            <rect id="Rectangle" x="784.5" y="363.5" width="49" height="60"></rect>
+            <rect id="Rectangle" x="833.5" y="303.5" width="49" height="60"></rect>
+            <rect id="Rectangle" x="784.5" y="303.5" width="49" height="60"></rect>
+            <rect id="Rectangle" x="784.5" y="242.5" width="49" height="60"></rect>
+            <rect id="Rectangle" x="734.5" y="242.5" width="49" height="60"></rect>
+            <rect id="Rectangle" x="635.5" y="122.5" width="49" height="60"></rect>
+            <rect id="Rectangle" x="586.5" y="122.5" width="49" height="60"></rect>
+            <rect id="Rectangle" x="586.5" y="61.5" width="49" height="60"></rect>
+            <rect id="Rectangle" x="536.5" y="61.5" width="49" height="60"></rect>
+            <rect id="Rectangle" x="536.5" y="0.5" width="49" height="60"></rect>
+            <rect id="Rectangle" x="487.5" y="0.5" width="49" height="60"></rect>
+            <rect id="Rectangle" x="437.5" y="0.5" width="49" height="60"></rect>
+            <rect id="Rectangle" x="387.5" y="0.5" width="49" height="60"></rect>
+            <rect id="Rectangle" x="339.5" y="61.5" width="49" height="60"></rect>
+            <rect id="Rectangle" x="289.5" y="91.5" width="49" height="60"></rect>
+            <rect id="Rectangle" x="685.5" y="181.5" width="49" height="60"></rect>
+            <rect id="Rectangle" x="734.5" y="181.5" width="49" height="60"></rect>
+            <rect id="Rectangle" x="635.5" y="181.5" width="49" height="60"></rect>
+            <rect id="Rectangle" x="282.5" y="224.5" width="70" height="70"></rect>
+            <rect id="Rectangle" x="267.5" y="413.5" width="70" height="70"></rect>
+            <rect id="Rectangle" x="185.5" y="310.5" width="70" height="70"></rect>
+            <rect id="Rectangle" x="89.5" y="358.5" width="70" height="70"></rect>
+            <rect id="Rectangle" x="100.5" y="216.5" width="67" height="67"></rect>
+            <rect id="Rectangle" x="50.5" y="164.5" width="51" height="51"></rect>
+            <rect id="Rectangle" x="0.5" y="288.5" width="60" height="60"></rect>
+            <rect id="Rectangle" x="176.5" y="479.5" width="66" height="66"></rect>
+            <rect id="Rectangle" x="199.5" y="145.5" width="70" height="70"></rect>
+            <rect id="Rectangle" x="142.5" y="96.5" width="60" height="60"></rect>
+        </g>
+    </g>
+</svg>
