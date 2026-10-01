@@ -276,14 +276,13 @@ const selectConversation = (id: string) => {
   }
 }
 
-const userDisplayName = computed(() => user.value?.name || 'Erickson Holding')
+const userDisplayName = computed(() => user.value?.name || user.value?.username || 'Guest')
+const userEmailLabel = computed(() => user.value?.email || 'Not signed in')
 const userAvatarInitials = computed(() => {
-  if (user.value?.name) {
-    const parts = user.value.name.trim().split(' ')
-    if (parts.length >= 2) return (parts[0][0] + parts[1][0]).toUpperCase()
-    return user.value.name.slice(0, 2).toUpperCase()
-  }
-  return 'EL'
+  const name = user.value?.name?.trim()
+  if (name) return name.charAt(0).toUpperCase()
+  if (user.value?.email) return user.value.email.charAt(0).toUpperCase()
+  return '?'
 })
 
 // Start New Clean Chat
@@ -530,7 +529,18 @@ const sendMessage = async () => {
 
   isTyping.value = true
   try {
-    const reply = await generateChatResponse(text, currentAttached, { model: selectedModel.value, tone: selectedTone.value })
+    const reply = await generateChatResponse(text, currentAttached, {
+      model: selectedModel.value,
+      tone: selectedTone.value,
+      identity: user.value
+        ? {
+            name: user.value.name,
+            email: user.value.email,
+            mobile: user.value.mobile,
+            username: user.value.username
+          }
+        : null
+    })
     targetConv.messages.push({
       id: 'assistant-' + Date.now(),
       role: 'assistant',
@@ -584,10 +594,9 @@ const handleGlobalKeydown = (e: KeyboardEvent) => {
   }
 }
 
-const handleLogout = () => {
-  logout()
+const handleLogout = async () => {
+  await logout()
   showToast('Logged out successfully')
-  router.push('/login')
 }
 
 // Close menus when clicking outside
@@ -881,7 +890,7 @@ onMounted(() => {
             v-if="showUserProfileMenu"
             class="absolute bottom-full left-3 right-3 mb-2 bg-white rounded-xl shadow-xl border border-gray-150 py-1.5 z-50 text-xs animate-in fade-in zoom-in-95 duration-100"
           >
-            <div class="px-3 py-1.5 text-[11px] text-gray-400 font-medium">{{ user ? user.email : 'user@prysel.ai' }}</div>
+            <div class="px-3 py-1.5 text-[11px] text-gray-400 font-medium">{{ userEmailLabel }}</div>
             <div class="border-t border-gray-100 my-1" />
             <button
               class="w-full text-left px-3 py-1.5 flex items-center gap-2 hover:bg-gray-50 text-gray-700"
@@ -1028,13 +1037,14 @@ onMounted(() => {
                 </p>
                 <p class="text-[11px] text-neutral-500 truncate">{{ user.email }}</p>
               </div>
-              <button
+              <NuxtLink
+                to="/profile"
                 class="w-full text-left px-3 py-1.5 flex items-center gap-2 hover:bg-neutral-50 text-neutral-700"
-                @click="showEditModal = true; showNavUserMenu = false"
+                @click="showNavUserMenu = false"
               >
                 <Settings class="w-3.5 h-3.5 text-neutral-400" />
                 <span>Account Settings</span>
-              </button>
+              </NuxtLink>
               <div class="h-px bg-neutral-100 my-1" />
               <button
                 class="w-full text-left px-3 py-1.5 flex items-center gap-2 hover:bg-red-50 text-red-600 font-medium"
@@ -1711,7 +1721,7 @@ onMounted(() => {
             <SunflowerAvatar className="w-10 h-10 border border-neutral-200" />
             <div>
               <h2 class="text-base font-bold text-neutral-900 leading-tight">{{ userDisplayName }}</h2>
-              <p class="text-xs text-neutral-500">{{ user?.email || 'erickson@prysel.ai' }}</p>
+              <p class="text-xs text-neutral-500">{{ userEmailLabel }}</p>
             </div>
           </div>
           <button class="p-1.5 rounded-lg text-neutral-400 hover:text-neutral-700 hover:bg-neutral-100" @click="showUserAccountModal = false">
@@ -1758,14 +1768,26 @@ onMounted(() => {
             <div>
               <label class="block font-semibold text-neutral-700 mb-1">Display Name</label>
               <input
-                v-model="userDisplayName"
-                class="w-full px-3 py-2 border border-neutral-200 rounded-xl text-xs text-neutral-800 focus:outline-none focus:border-neutral-400"
+                :value="user?.name || 'None'"
+                disabled
+                class="w-full px-3 py-2 border border-neutral-200 rounded-xl text-xs text-neutral-500 bg-neutral-50 cursor-not-allowed"
               />
+              <NuxtLink to="/profile" class="inline-block mt-2 text-[11px] font-medium text-[#007b83] hover:underline">
+                Edit name, email, and phone on your Prysel profile
+              </NuxtLink>
             </div>
             <div>
               <label class="block font-semibold text-neutral-700 mb-1">Email Address</label>
               <input
-                :value="user?.email || 'erickson@prysel.ai'"
+                :value="user?.email || 'None'"
+                disabled
+                class="w-full px-3 py-2 border border-neutral-200 rounded-xl text-xs text-neutral-500 bg-neutral-50 cursor-not-allowed"
+              />
+            </div>
+            <div>
+              <label class="block font-semibold text-neutral-700 mb-1">Mobile</label>
+              <input
+                :value="user?.mobile || 'None'"
                 disabled
                 class="w-full px-3 py-2 border border-neutral-200 rounded-xl text-xs text-neutral-500 bg-neutral-50 cursor-not-allowed"
               />
@@ -1827,9 +1849,9 @@ onMounted(() => {
           <!-- SECURITY TAB -->
           <div v-else-if="activeUserTab === 'security'" class="space-y-4">
             <div class="p-3.5 rounded-xl border border-neutral-100 bg-neutral-50/60 space-y-1">
-              <div class="font-semibold text-neutral-800">Cloud SDK OneAuth Session</div>
-              <div class="text-[11px] text-neutral-500 leading-relaxed font-mono break-all">
-                Token: prysel_oa_live_{{ user ? 'valid' : 'demo' }}...
+              <div class="font-semibold text-neutral-800">Prysel identity</div>
+              <div class="text-[11px] text-neutral-500 leading-relaxed">
+                Sign in, passwords, and passkeys stay on auth.prysel.com. This chat never stores them.
               </div>
             </div>
             <div class="flex items-center justify-between p-3 rounded-xl border border-neutral-100">
@@ -1837,9 +1859,9 @@ onMounted(() => {
                 <div class="font-semibold text-neutral-800">Two-Factor Authentication</div>
                 <div class="text-[11px] text-neutral-500">Secure your account with authenticator app</div>
               </div>
-              <button class="px-3 py-1.5 rounded-lg border border-neutral-200 text-xs font-medium hover:bg-neutral-50" @click="showToast('2FA configuration saved')">
+              <NuxtLink to="/security" class="px-3 py-1.5 rounded-lg border border-neutral-200 text-xs font-medium hover:bg-neutral-50">
                 Configure
-              </button>
+              </NuxtLink>
             </div>
             <button
               class="w-full py-2 rounded-xl border border-red-200 text-red-600 hover:bg-red-50 text-xs font-semibold transition-colors"

@@ -223,7 +223,7 @@ Connection established successfully. The SDK interface is active and prepared fo
   const generateChatResponse = async (
     prompt: string,
     _files: Array<{ name: string; size: string }> = [],
-    extra: { model?: string; tone?: string } = {}
+    extra: { model?: string; tone?: string; identity?: { name?: string | null; email?: string | null; mobile?: string | null; username?: string | null } | null } = {}
   ) => {
     return await $fetch<{
       answer: string
@@ -234,7 +234,12 @@ Connection established successfully. The SDK interface is active and prepared fo
       sources?: Array<{ title: string; url: string }>
     }>('/api/ai/chat', {
       method: 'POST',
-      body: { message: prompt, model: extra.model, tone: extra.tone },
+      body: {
+        message: prompt,
+        model: extra.model,
+        tone: extra.tone,
+        identity: extra.identity || undefined
+      },
       timeout: 180_000
     })
   }

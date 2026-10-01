@@ -1110,6 +1110,9 @@
   resolved "https://registry.yarnpkg.com/@poppinss/exception/-/exception-1.2.3.tgz#b713855e6c9fe2110fea0949455c50828145e64a"
   integrity sha512-dCED+QRChTVatE9ibtoaxc+WkdzOSjYTKi/+uacHWIsfodVfpsueo3+DKpgU5Px8qXjgmXkSvhXvSCz3fnP9lw==
 
+"@prysel/auth@file:packages/prysel-auth":
+  version "1.0.0"
+
 "@rolldown/binding-android-arm-eabi@1.2.10":
   version "1.2.10"
   resolved "https://registry.yarnpkg.com/@rolldown/binding-android-arm-eabi/-/binding-android-arm-eabi-1.2.10.tgz#839bf4a3994d1105faf8e8ee1c3cd7e60672538f"

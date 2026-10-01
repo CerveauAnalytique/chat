@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { isAuthContinueUrl, type PortalGrant, type PortalSession, type TotpSetup } from '~/composables/useAccountPortal'
+import { isAuthContinueUrl, safeAuthContinueUrl, type PortalGrant, type PortalSession, type TotpSetup } from '~/composables/useAccountPortal'
 
 useHead({ title: 'Security' })
 definePageMeta({ middleware: ['account-session'] })
@@ -130,8 +130,8 @@ const continueSignIn = async () => {
   try {
     const result = await verifyMfa(code)
     status.value = 'Verification complete.'
-    const next = result?.continueUrl || continueTarget.value
-    if (next && isAuthContinueUrl(next)) {
+    const next = safeAuthContinueUrl(result?.continueUrl) || safeAuthContinueUrl(continueTarget.value)
+    if (next) {
       window.location.assign(next)
       return
     }

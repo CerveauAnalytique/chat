@@ -156,7 +156,7 @@
 .acct-avatar-fallback,
 .acct-avatar-lg {
   background: #ff7b00;
-  color: #000;
+  color: #fff;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -169,6 +169,12 @@
   border-radius: 50%;
   font-size: 1.5rem;
   flex-shrink: 0;
+}
+
+img.acct-avatar-lg {
+  object-fit: cover;
+  background: #fff;
+  color: inherit;
 }
 
 .acct-badge-name {
@@ -237,12 +243,12 @@
 .acct-icon {
   width: 3rem;
   height: 3rem;
-  background: #fff8e6;
+  background: #ff7b00;
   border-radius: 0.5rem;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #ff7b00;
+  color: #fff;
   margin-bottom: 0.25rem;
 }
 

@@ -1,3 +1,5 @@
+import { ACCOUNT_ORIGIN, AUTH_ORIGIN, createPryselAuth, stripForbiddenSearchParams } from '@prysel/auth'
+
 export interface AccountUser {
   id: string
   email: string
@@ -71,18 +73,12 @@ export class AccountRequestError extends Error {
   }
 }
 
-const AUTH_BASE = 'https://auth.prysel.com'
-const ACCOUNT_SITE = 'https://account.prysel.com'
 const CORS_MESSAGE = 'https://account.prysel.com must be allowed as an origin on auth.prysel.com.'
-
-const callbackUrl = () => {
-  if (import.meta.client) return `${window.location.origin}/auth/callback`
-  return `${ACCOUNT_SITE}/auth/callback`
-}
+const pryselAuth = createPryselAuth({ authOrigin: AUTH_ORIGIN, afterLoginFallback: '/dashboard' })
 
 export const isAuthContinueUrl = (value: string) => {
   try {
-    const url = new URL(value)
+    const url = new URL(stripForbiddenSearchParams(value))
     if (url.protocol !== 'https:' || url.hostname !== 'auth.prysel.com') return false
     const path = url.pathname
     return path === '/authorize'
@@ -96,6 +92,11 @@ export const isAuthContinueUrl = (value: string) => {
   } catch {
     return false
   }
+}
+
+export const safeAuthContinueUrl = (value?: string | null) => {
+  if (!value || !isAuthContinueUrl(value)) return ''
+  return stripForbiddenSearchParams(value)
 }
 
 export const formatLongDate = (value?: string | null) => {
@@ -126,26 +127,16 @@ export function useAccountPortal() {
   const authRedirecting = useState('acct-auth-redirecting', () => false)
   const session = useState<AccountSession | null>('acct-session', () => null)
 
-  const redirectToSignIn = () => {
+  const redirectToSignIn = (afterPath = '/dashboard') => {
     if (!import.meta.client || authRedirecting.value) return
     authRedirecting.value = true
-    const url = new URL('/login', AUTH_BASE)
-    url.searchParams.set('returnUrl', callbackUrl())
-    window.location.assign(url.toString())
+    pryselAuth.redirectToSignIn(afterPath)
   }
 
   const request = async <T>(path: string, init: RequestInit = {}, redirectOn401 = true): Promise<T> => {
     let response: Response
     try {
-      response = await fetch(`${AUTH_BASE}${path}`, {
-        ...init,
-        credentials: 'include',
-        headers: {
-          Accept: 'application/json',
-          'Content-Type': 'application/json',
-          ...(init.headers || {})
-        }
-      })
+      response = await pryselAuth.fetchAuth(path, init)
     } catch (error) {
       if (error instanceof TypeError) corsBlocked.value = true
       throw error
@@ -192,12 +183,23 @@ export function useAccountPortal() {
     return next
   }
 
+  const peekSession = async () => {
+    if (!import.meta.client) return session.value
+    const payload = await request<{ user?: AccountUser, profile?: Record<string, unknown> | null, loginHistory?: LoginEvent[] }>('/api/me', {}, false)
+    if (!payload?.user) throw new AccountRequestError('Unable to load profile.')
+    return readSession(payload)
+  }
+
   const ensureSession = async () => {
     if (!import.meta.client) return session.value
     if (authRedirecting.value) return session.value
-    const payload = await request<{ user?: AccountUser, profile?: Record<string, unknown> | null, loginHistory?: LoginEvent[] }>('/api/me')
-    if (!payload?.user) throw new AccountRequestError('Unable to load profile.')
-    return readSession(payload)
+    try {
+      return await peekSession()
+    } catch (error) {
+      if (corsBlocked.value) throw error
+      if (error instanceof AccountRequestError && error.status === 401) redirectToSignIn('/dashboard')
+      throw error
+    }
   }
 
   const getApps = async () => {
@@ -263,23 +265,28 @@ export function useAccountPortal() {
     return request<{ continueUrl?: string }>('/api/v1/mfa/verify', { method: 'POST', body: JSON.stringify({ code }) })
   }
 
-  const logout = async () => {
+  const logout = async ({ redirect = true }: { redirect?: boolean } = {}) => {
     try {
       await request('/api/auth/logout', { method: 'POST', body: '{}' }, false)
     } catch {
-      // A failed logout call still returns the browser to sign in.
+      // A failed logout call still clears the local session.
     }
     session.value = null
-    redirectToSignIn()
+    if (redirect) pryselAuth.redirectToSignIn('/dashboard')
   }
 
+  const completeCallback = () => pryselAuth.completeCallback()
+
   return {
-    AUTH_BASE,
+    AUTH_BASE: AUTH_ORIGIN,
+    ACCOUNT_SITE: ACCOUNT_ORIGIN,
     CORS_MESSAGE,
     corsBlocked,
     authRedirecting,
     session,
     redirectToSignIn,
+    completeCallback,
+    peekSession,
     ensureSession,
     getApps,
     recordAppAccess,
