@@ -22,6 +22,11 @@ async function wikipedia(query) {
   if (!search.ok) return sources
   const data = await search.json()
   const titles = (data.query?.search || []).map((item) => item.title).filter(Boolean)
+  const words = String(query || "").toLowerCase().split(/\s+/).filter((w) => w.length > 3)
+  titles.sort((a, b) => {
+    const score = (title) => words.reduce((n, w) => n + (title.toLowerCase().includes(w) ? 1 : 0), 0)
+    return score(b) - score(a)
+  })
   for (const title of titles.slice(0, 2)) {
     const summary = await fetch(
       `https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(title)}`,
@@ -65,6 +70,13 @@ async function duckduckgo(query) {
   return sources
 }
 
+export function cleanQuery(text) {
+  return String(text || "")
+    .replace(/[?!.]/g, " ")
+    .replace(/\b(please|find real data|look up|lookup|research|tell me about|what is|what's|whats|who is|how many|where is)\b/gi, " ")
+    .replace(/\s+/g, " ")
+    .trim()
+}
 export function wantsResearch(text) {
   return /\b(research|look up|lookup|find|who is|what is|what's|whats|population|news|data|history|where is|how many|capital of|when did|when was|tell me about)\b/i.test(
     String(text || ""),
@@ -72,15 +84,16 @@ export function wantsResearch(text) {
 }
 
 export async function research(query) {
+  const q = cleanQuery(query) || String(query || "").trim()
   const sources = []
   try {
-    sources.push(...(await wikipedia(query)))
+    sources.push(...(await wikipedia(q)))
   } catch {
     // continue
   }
   if (sources.length < 2) {
     try {
-      for (const extra of await duckduckgo(query)) {
+      for (const extra of await duckduckgo(q)) {
         if (!sources.some((s) => s.url === extra.url)) sources.push(extra)
       }
     } catch {

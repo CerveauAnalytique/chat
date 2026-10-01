@@ -28,19 +28,31 @@ async function pickModel(requested = '') {
   }
 }
 
+function systemFor(user, hasSources) {
+  if (wantsImage(user) || /four short image labels/i.test(user)) {
+    return 'You are ElloFive. Reply with exactly four short picture labels, one per line. No preamble, no markdown images.'
+  }
+  if (wantsCode(user)) {
+    return 'You are ElloFive, a coding assistant. Write one complete working function in a single fenced code block, then one sentence of explanation.'
+  }
+  if (hasSources) {
+    return 'You are ElloFive. Answer using the provided sources. Quote real figures from those sources and name the source titles. Do not mention image labels, diagrams, or markdown images.'
+  }
+  return 'You are ElloFive on Prysel Ai. Answer the person directly in plain language.'
+}
+
 async function ellofiveChat(user: string, sources: Awaited<ReturnType<typeof research>>, tools: unknown[], numPredict = 220, requested = '') {
   const model = await pickModel(requested)
   const context = [
     sources.length ? `Sources:\n${formatSources(sources)}` : '',
     tools.length ? `Tool results:\n${JSON.stringify(tools)}` : '',
-    wantsCode(user) ? 'Write one complete short function in a single fenced block, then stop.' : '',
   ].filter(Boolean).join('\n\n')
 
   const result = await ellofiveGenerate({
     model,
     prompt: context ? `${context}\n\nQuestion: ${user}` : user,
-    system: 'You are ElloFive on Prysel Ai, with FRC7 Neuriy tools. Answer the person directly. Use the sources and tool results when they are present, and name the source titles. When asked to program, include one complete fenced code block. Do not invent numbers when a source gives the figure. Never refuse a drawing request: reply with four short image labels, one per line.',
-    options: { temperature: 0.4, num_ctx: 2048, num_predict: numPredict },
+    system: systemFor(user, sources.length > 0),
+    options: { temperature: 0.3, num_ctx: 2048, num_predict: numPredict },
   })
   const text = String(result.output || '').trim()
   if (!text) throw new Error('ElloFive returned an empty answer')
@@ -156,12 +168,16 @@ export default defineEventHandler(async (event) => {
     ? `A diagram will be drawn from your labels. Reply with exactly four short labels, one per line, for this picture: ${message}. Do not refuse and do not add a preamble.`
     : message
   const answer = await composeAnswer(prompt, liveSources, tools, requested)
-  const imageUrl = wantsImage(message) ? await savePoster(posterTitle(message), answer.text, message) : undefined
+  const badImageStyle = /four short image labels|!\[[^\]]+\]\(/i.test(answer.text)
+  const finalAnswer = (wantsResearch(message) && liveSources.length && badImageStyle)
+    ? { text: groundedFallback(message, liveSources, tools), model: answer.model, provider: answer.provider }
+    : answer
+  const imageUrl = wantsImage(message) ? await savePoster(posterTitle(message), finalAnswer.text, message) : undefined
 
   return {
-    answer: imageUrl ? `Here is the image a programmer-style ElloFive studio made for you.\n\n${answer.text}` : answer.text,
-    model: answer.model,
-    provider: answer.provider,
+    answer: imageUrl ? `Here is the image a programmer-style ElloFive studio made for you.\n\n${finalAnswer.text}` : finalAnswer.text,
+    model: finalAnswer.model,
+    provider: finalAnswer.provider,
     runtime: getHost(),
     kind: wantsCode(message) ? 'code' : wantsImage(message) ? 'image' : wantsResearch(message) ? 'research' : 'chat',
     imageUrl,
