@@ -109,11 +109,11 @@ const handleFinalizeSpeech = async (spokenText: string) => {
   } else if (lower.includes('sales') || lower.includes('revenue') || lower.includes('growth')) {
     reply = 'Overall sales grew by 18.4% this quarter, driven strongly by European and North American enterprise tiers.'
   } else if (lower.includes('cloud') || lower.includes('hosting') || lower.includes('server')) {
-    reply = 'Your LSKY Cloud cluster in Frankfurt is running optimally on KVM with triple-replicated Ceph storage.'
+    reply = 'Your Prysel Ai cluster in Frankfurt is running optimally on KVM with triple-replicated Ceph storage.'
   } else if (lower.includes('hello') || lower.includes('hi') || lower.includes('hey')) {
     reply = 'Hello! I am Neuriy AI. What would you like to explore or analyze today?'
   } else {
-    reply = `I have received your request: "${spokenText}". Let me process that for you in LSKY.`
+    reply = `I have received your request: "${spokenText}". Let me process that for you in Prysel Ai.`
   }
 
   lastResponse.value = reply
@@ -224,7 +224,7 @@ onUnmounted(() => {
         </p>
 
         <p v-if="!transcript && !lastResponse" class="text-sm text-neutral-400">
-          Ask questions, query LSKY cloud databases, or give voice instructions.
+          Ask questions, query Prysel Ai cloud databases, or give voice instructions.
         </p>
       </div>
     </div>
