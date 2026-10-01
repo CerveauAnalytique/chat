@@ -220,73 +220,21 @@ Connection established successfully. The SDK interface is active and prepared fo
     return result
   }
 
-  // Generate completion for the chat interface
   const generateChatResponse = async (
     prompt: string,
-    files: Array<{ name: string; size: string }> = []
-  ): Promise<string> => {
-    // If real endpoint + key exists, attempt live call
-    if (config.value.apiKey && config.value.endpoint.startsWith('http')) {
-      try {
-        const res = await fetch(`${config.value.endpoint.replace(/\/$/, '')}/chat/completions`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${config.value.apiKey}`
-          },
-          body: JSON.stringify({
-            model: config.value.model,
-            temperature: config.value.temperature,
-            max_tokens: config.value.maxTokens,
-            messages: [
-              { role: 'system', content: config.value.systemPrompt },
-              { role: 'user', content: prompt }
-            ]
-          })
-        })
-
-        if (res.ok) {
-          const data = await res.json()
-          if (data.choices?.[0]?.message?.content) {
-            return data.choices[0].message.content
-          }
-        }
-      } catch (err) {
-        console.warn('Real LLM request fallback to SDK local reasoning engine', err)
-      }
-    }
-
-    // Local / Demo SDK fallback engine
-    await new Promise(r => setTimeout(r, 750))
-
-    if (files.length > 0) {
-      return `I analyzed and combined **${files.map(f => f.name).join('** and **')}** via **Prysel Ai SDK (${config.value.model})**:
-
-### Executive Summary:
-- **Total Combined Revenue:** $4,820,000 (Q4 grew by +18.4% compared to Q3).
-- **Top Performing Region:** North America led with $2.1M total sales, followed by EMEA at $1.5M.
-- **Key Discrepancies Resolved:** 
-  1. Found 14 unmapped customer IDs in the APAC sheet; normalized into standard retail tier.
-  2. Currency exchange variation in European transactions accounted for a $32k variance.
-
-### Recommended Next Actions:
-- Export consolidated reconciliation sheet to your Prysel Ai repository.
-- Generate visual cohort charts for Q3 vs Q4 regional retention rates.`
-    }
-
-    if (prompt.toLowerCase().includes('spreadsheet') || prompt.toLowerCase().includes('ask')) {
-      return `For spreadsheets via the Prysel Ai SDK, consider asking:
-
-- How can I compare data across multiple sheets in Prysel Ai?
-- Can I detect discrepancies between versions?
-- What's the best method to visualize data differences?`
-    }
-
-    return `I've processed your inquiry using **${config.value.model}** via the **Prysel Ai SDK** (Endpoint: \`${config.value.endpoint}\`, Temp: ${config.value.temperature}).
-
-- **Analysis:** All parameters verified within normal bounds.
-- **Data Source:** Verified European sovereign cluster (${config.value.clusterRegion}).
-- **Next Step:** You can configure additional model hyperparameters or API credentials anytime in the **SDK Settings**.`
+    _files: Array<{ name: string; size: string }> = []
+  ) => {
+    return await $fetch<{
+      answer: string
+      model?: string
+      provider?: string
+      kind?: string
+      imageUrl?: string
+      sources?: Array<{ title: string; url: string }>
+    }>('/api/ai/chat', {
+      method: 'POST',
+      body: { message: prompt }
+    })
   }
 
   return {

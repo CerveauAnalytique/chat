@@ -74,6 +74,8 @@ interface Message {
   author: string
   timeAgo: string
   content: string
+  imageUrl?: string
+  sources?: Array<{ title: string; url: string }>
   files?: Array<{ name: string; size: string; type: string }>
   liked?: boolean
   disliked?: boolean
@@ -513,13 +515,15 @@ const sendMessage = async () => {
 
   isTyping.value = true
   try {
-    const responseText = await generateChatResponse(text, currentAttached)
+    const reply = await generateChatResponse(text, currentAttached)
     targetConv.messages.push({
       id: 'assistant-' + Date.now(),
       role: 'assistant',
-      author: currentAgent.value,
+      author: 'ElloFive',
       timeAgo: 'Just now',
-      content: responseText
+      content: reply.answer,
+      imageUrl: reply.imageUrl,
+      sources: reply.sources
     })
   } catch (err: any) {
     targetConv.messages.push({
@@ -1106,9 +1110,26 @@ onMounted(() => {
                 <span>{{ msg.timeAgo }}</span>
               </div>
 
-              <!-- Content -->
               <div class="text-sm font-normal leading-relaxed text-gray-800 whitespace-pre-wrap">
                 {{ msg.content }}
+              </div>
+              <img
+                v-if="msg.imageUrl"
+                :src="msg.imageUrl"
+                alt="Image made by ElloFive"
+                class="mt-2 max-w-full rounded-xl border border-neutral-200"
+              >
+              <div v-if="msg.sources?.length" class="pt-1 space-y-1">
+                <a
+                  v-for="source in msg.sources"
+                  :key="source.url"
+                  :href="source.url"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="block text-xs text-[#007b83] hover:underline"
+                >
+                  {{ source.title }}
+                </a>
               </div>
 
               <!-- Action buttons: Thumbs up, Thumbs down, Copy -->
