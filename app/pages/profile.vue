@@ -94,7 +94,7 @@ const savePassword = async () => {
   savingPassword.value = true
   try {
     await changePassword(currentPassword.value, newPassword.value)
-    passwordMessage.value = 'Password updated.'
+    passwordMessage.value = 'Password updated'
     currentPassword.value = ''
     newPassword.value = ''
   } catch (error) {
@@ -139,7 +139,7 @@ const savePassword = async () => {
               <div class="acct-row"><span>Username</span><span>{{ textOrNone(user.username) }}</span></div>
               <div class="acct-row"><span>Email</span><span>{{ textOrNone(user.email) }}</span></div>
               <div class="acct-row"><span>Mobile</span><span>{{ textOrNone(user.mobile) }}</span></div>
-              <div class="acct-row"><span>Role</span><span>{{ user.role || 'user' }}</span></div>
+              <div class="acct-row"><span>Role</span><span>{{ textOrNone(user.role) }}</span></div>
               <div class="acct-row">
                 <span>Email Verified</span>
                 <span v-if="user.emailVerified" class="acct-pill-ok">Verified</span>

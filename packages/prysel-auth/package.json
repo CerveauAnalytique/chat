@@ -1,0 +1,11 @@
+{
+  "name": "@prysel/auth",
+  "version": "1.0.0",
+  "description": "Browser SSO client for auth.prysel.com. Cookie session only. No client secret.",
+  "type": "module",
+  "main": "src/index.js",
+  "exports": {
+    ".": "./src/index.js"
+  },
+  "license": "MIT"
+}

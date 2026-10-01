@@ -10,7 +10,7 @@ const loading = ref(true)
 const apps = ref<PortalApp[]>([])
 
 const displayName = computed(() => session.value?.user.name?.trim() || '')
-const initial = computed(() => (displayName.value || session.value?.user.email || 'P').charAt(0).toUpperCase())
+const initial = computed(() => (displayName.value.charAt(0) || 'P').toUpperCase())
 
 const icons: Record<string, string> = {
   dashboard: 'M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z',
@@ -82,10 +82,10 @@ onMounted(async () => {
             </svg>
           </div>
           <h2>{{ app.name }}</h2>
-          <p>{{ app.description || 'Prysel ecosystem application.' }}</p>
+          <p>{{ app.description || '' }}</p>
           <div class="acct-meta">
             <span class="acct-sso">SSO Enabled</span>
-            <span v-if="app.lastAccessedAt" class="acct-last">Last accessed {{ formatMediumDate(app.lastAccessedAt) }}</span>
+            <span v-if="app.lastAccessedAt" class="acct-last">{{ formatMediumDate(app.lastAccessedAt) }}</span>
           </div>
           <a
             :href="app.url"

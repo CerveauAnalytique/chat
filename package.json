@@ -9,10 +9,12 @@
     "preview": "nuxt preview",
     "ai:install": "bash scripts/install-ai.sh",
     "ai:start": "bash scripts/start-ai.sh",
-    "ai:test": "bash scripts/test-ai.sh"
+    "ai:test": "bash scripts/test-ai.sh",
+    "test:auth": "node --test packages/prysel-auth/test.js"
   },
   "dependencies": {
     "@nuxt/content": "^3.16.0",
+    "@prysel/auth": "file:packages/prysel-auth",
     "better-sqlite3": "^13.0.3",
     "lucide-vue-next": "^1.0.0",
     "nuxt": "^4.5.2",

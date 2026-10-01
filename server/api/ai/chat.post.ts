@@ -91,13 +91,23 @@ function groundedFallback(user: string, sources: Awaited<ReturnType<typeof resea
   return ''
 }
 
-async function composeAnswer(user: string, sources: Awaited<ReturnType<typeof research>>, tools: unknown[], requested = '') {
+async function composeAnswer(
+  user: string,
+  sources: Awaited<ReturnType<typeof research>>,
+  tools: unknown[],
+  requested = '',
+  identity: { name: string; email: string; mobile: string; username: string } | null = null,
+) {
+  const identityNote = identity
+    ? `Signed in Prysel account from auth.prysel.com. Name: ${identity.name || 'None'}. Email: ${identity.email}. Mobile: ${identity.mobile || 'None'}. Username: ${identity.username || 'None'}.`
+    : ''
+  const withIdentity = identityNote ? `${user}\n\n${identityNote}` : user
   const preferNeuriy = String(requested).startsWith('neuriy.')
   if (preferNeuriy) {
     try {
       const neuriy = await neuriyChat({
         model: requested,
-        message: sources.length ? `${user}\n\nLive research:\n${formatSources(sources)}` : user,
+        message: sources.length ? `${withIdentity}\n\nLive research:\n${formatSources(sources)}` : withIdentity,
         useTools: false,
       })
       const text = String(neuriy.output || '').trim()
@@ -107,14 +117,14 @@ async function composeAnswer(user: string, sources: Awaited<ReturnType<typeof re
     }
   }
   try {
-    return await ellofiveChat(user, sources, tools, wantsCode(user) ? 420 : wantsImage(user) ? 120 : 240, requested)
+    return await ellofiveChat(withIdentity, sources, tools, wantsCode(user) ? 420 : wantsImage(user) ? 120 : 240, requested)
   } catch (ellofiveError) {
     try {
       const neuriy = await neuriyChat({
         model: requested.startsWith('neuriy.') ? requested : wantsCode(user) ? 'neuriy.code' : 'neuriy.chat',
         message: sources.length
-          ? `${user}\n\nLive research:\n${formatSources(sources)}`
-          : user,
+          ? `${withIdentity}\n\nLive research:\n${formatSources(sources)}`
+          : withIdentity,
         useTools: false,
       })
       const text = String(neuriy.output || '').trim()
@@ -144,15 +154,76 @@ async function savePoster(title: string, answer: string, prompt: string) {
   return `/ai-generated/${id}.svg`
 }
 
+function wantsIdentity(text: string) {
+  return /\b(my (name|email|e-mail|mail|phone|mobile|username|account)|who am i|what is my)\b/i.test(text)
+}
+
+function identityFromBody(body: Record<string, unknown> | null) {
+  const raw = body?.identity
+  if (!raw || typeof raw !== 'object') return null
+  const data = raw as { name?: unknown; email?: unknown; mobile?: unknown; username?: unknown }
+  const email = typeof data.email === 'string' ? data.email.trim() : ''
+  if (!email) return null
+  return {
+    name: typeof data.name === 'string' ? data.name.trim() : '',
+    email,
+    mobile: typeof data.mobile === 'string' ? data.mobile.trim() : '',
+    username: typeof data.username === 'string' ? data.username.trim() : '',
+  }
+}
+
+function answerFromIdentity(message: string, identity: { name: string; email: string; mobile: string; username: string }) {
+  const none = (value: string) => value || 'None'
+  const lower = message.toLowerCase()
+  const wantsName = /\bname\b/.test(lower) && !/\busername\b/.test(lower)
+  const wantsEmail = /\b(email|e-mail|mail)\b/.test(lower)
+  const wantsPhone = /\b(phone|mobile)\b/.test(lower)
+  const wantsUser = /\busername\b/.test(lower)
+  const asked = [wantsName, wantsEmail, wantsPhone, wantsUser].filter(Boolean).length
+  if (asked !== 1) {
+    return [
+      'This is the account on auth.prysel.com.',
+      `Name: ${none(identity.name)}.`,
+      `Username: ${none(identity.username)}.`,
+      `Email: ${identity.email}.`,
+      `Mobile: ${none(identity.mobile)}.`,
+    ].join(' ')
+  }
+  if (wantsPhone) return `Your mobile number on this Prysel account is ${none(identity.mobile)}.`
+  if (wantsEmail) return `Your email on this Prysel account is ${identity.email}.`
+  if (wantsUser) return `Your username on this Prysel account is ${none(identity.username)}.`
+  return `Your name on this Prysel account is ${none(identity.name)}.`
+}
+
 export default defineEventHandler(async (event) => {
-  const body = await readBody(event)
+  const body = await readBody(event) as Record<string, unknown>
   const message = String(body?.message || '').trim().slice(0, 2000)
   const requested = String(body?.model || process.env.ELLOFIVE_MODEL || 'ellofive')
   if (!message) {
     throw createError({ statusCode: 400, statusMessage: 'A message is required' })
   }
 
-  const liveSources = wantsResearch(message) ? await research(message) : []
+  const identity = identityFromBody(body)
+  if (wantsIdentity(message)) {
+    if (!identity) {
+      return {
+        answer: 'Sign in with Prysel Auth to read your name, email, and phone from auth.prysel.com. I will not invent that data.',
+        model: 'auth.prysel.com',
+        provider: 'prysel-auth',
+        kind: 'identity',
+        sources: []
+      }
+    }
+    return {
+      answer: answerFromIdentity(message, identity),
+      model: 'auth.prysel.com',
+      provider: 'prysel-auth',
+      kind: 'identity',
+      sources: []
+    }
+  }
+
+  const liveSources = wantsResearch(message) && !wantsIdentity(message) ? await research(message) : []
 
   const intent = detectToolIntent(message)
   const tools = []
@@ -167,7 +238,7 @@ export default defineEventHandler(async (event) => {
   const prompt = wantsImage(message)
     ? `A diagram will be drawn from your labels. Reply with exactly four short labels, one per line, for this picture: ${message}. Do not refuse and do not add a preamble.`
     : message
-  const answer = await composeAnswer(prompt, liveSources, tools, requested)
+  const answer = await composeAnswer(prompt, liveSources, tools, requested, identity)
   const badImageStyle = /four short image labels|!\[[^\]]+\]\(/i.test(answer.text)
   const finalAnswer = (wantsResearch(message) && liveSources.length && badImageStyle)
     ? { text: groundedFallback(message, liveSources, tools), model: answer.model, provider: answer.provider }
