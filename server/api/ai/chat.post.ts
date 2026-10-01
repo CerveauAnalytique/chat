@@ -175,7 +175,7 @@ export default defineEventHandler(async (event) => {
   const imageUrl = wantsImage(message) ? await savePoster(posterTitle(message), finalAnswer.text, message) : undefined
 
   return {
-    answer: imageUrl ? `Here is the image a programmer-style ElloFive studio made for you.\n\n${finalAnswer.text}` : finalAnswer.text,
+    answer: imageUrl ? 'Here is the image a programmer-style ElloFive studio made for you.' : finalAnswer.text,
     model: finalAnswer.model,
     provider: finalAnswer.provider,
     runtime: getHost(),

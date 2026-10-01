@@ -27,7 +27,7 @@ async function wikipedia(query) {
     const score = (title) => words.reduce((n, w) => n + (title.toLowerCase().includes(w) ? 1 : 0), 0)
     return score(b) - score(a)
   })
-  for (const title of titles.slice(0, 2)) {
+  for (const title of titles.slice(0, 1)) {
     const summary = await fetch(
       `https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(title)}`,
       { headers },

@@ -151,7 +151,7 @@ export function renderIllustration(title, answer, prompt = "") {
     .slice(0, 4)
   const blob = `${title} ${prompt}`.toLowerCase()
   const hue = hashHue(blob)
-  if (/\b(program|code|computer|laptop|developer|studio|make an? image)\b/.test(blob)) {
+  if (/\b(program|programmer|code|computer|laptop|developer|studio|make an? image)\b/.test(blob)) {
     return programmer(title, lines)
   }
   if (/\b(diagram|chart|flow|architecture|pipeline|stack)\b/.test(blob)) {
