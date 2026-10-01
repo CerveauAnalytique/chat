@@ -190,13 +190,28 @@ const agentList = ref(['Prysel Ai', 'Prysel Ai Finance', 'Prysel Ai Code Cloud',
 const selectedDataSource = ref('Prysel Ai')
 const dataSourceOptions = ['Prysel Ai', 'Prysel Ai European Cloud DB', 'Prysel Ai Analytics Lake', 'Corporate Spreadsheets']
 
-const selectedModel = ref('claude-3-sonnet')
+const selectedModel = ref('ellofive')
 const modelOptions = [
-  { id: 'claude-3-sonnet', name: 'claude-3-sonnet', provider: 'anthropic', desc: 'Balanced intelligence & speed' },
-  { id: 'claude-3-5-sonnet', name: 'claude-3.5-sonnet', provider: 'anthropic', desc: 'Highest intelligence & coding' },
-  { id: 'gpt-4o', name: 'gpt-4o', provider: 'openai', desc: 'Versatile multimodal reasoning' },
-  { id: 'gemini-1.5-pro', name: 'gemini-1.5-pro', provider: 'google', desc: 'Ultra-long 2M token context' }
+  { id: 'ellofive', name: 'ElloFive', provider: 'ellofive', desc: 'Local Ollama LLM (real AI)' },
+  { id: 'neuriy.chat', name: 'Neuriy Chat', provider: 'frc7', desc: 'FRC7 conversational orchestrator' },
+  { id: 'neuriy.code', name: 'Neuriy Code', provider: 'frc7', desc: 'FRC7 pair programmer' }
 ]
+const aiHealth = ref<{ ok?: boolean; hint?: string } | null>(null)
+
+type ContentPart = { type: 'text' | 'code'; lang?: string; text: string }
+const parseMessageParts = (content: string): ContentPart[] => {
+  const parts: ContentPart[] = []
+  const re = /```(\w+)?\n([\s\S]*?)```/g
+  let last = 0
+  let match: RegExpExecArray | null
+  while ((match = re.exec(content))) {
+    if (match.index > last) parts.push({ type: 'text', text: content.slice(last, match.index) })
+    parts.push({ type: 'code', lang: match[1] || '', text: match[2] })
+    last = match.index + match[0].length
+  }
+  if (last < content.length) parts.push({ type: 'text', text: content.slice(last) })
+  return parts.length ? parts : [{ type: 'text', text: content }]
+}
 
 const selectedTone = ref('Tone')
 const toneOptions = ['Default', 'Analytical', 'Concise', 'Executive Summary', 'Friendly']
@@ -515,7 +530,7 @@ const sendMessage = async () => {
 
   isTyping.value = true
   try {
-    const reply = await generateChatResponse(text, currentAttached)
+    const reply = await generateChatResponse(text, currentAttached, { model: selectedModel.value, tone: selectedTone.value })
     targetConv.messages.push({
       id: 'assistant-' + Date.now(),
       role: 'assistant',
@@ -605,6 +620,9 @@ onMounted(() => {
   initSdk()
   adjustTextareaHeight()
   window.addEventListener('keydown', handleGlobalKeydown)
+  $fetch<{ ok?: boolean; hint?: string }>('/api/ai/health')
+    .then((health) => { aiHealth.value = health })
+    .catch(() => { aiHealth.value = { ok: false, hint: 'AI runtime is starting' } })
 
   if (typeof window !== 'undefined') {
     try {
@@ -932,6 +950,13 @@ onMounted(() => {
               />
 
               <span class="text-sm font-semibold text-gray-800 tracking-tight max-w-[34vw] sm:max-w-[220px] truncate">{{ currentAgent }}</span>
+              <span
+                class="hidden sm:inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-medium"
+                :class="aiHealth?.ok ? 'bg-emerald-50 text-emerald-700' : 'bg-amber-50 text-amber-700'"
+              >
+                <span class="w-1.5 h-1.5 rounded-full" :class="aiHealth?.ok ? 'bg-emerald-500' : 'bg-amber-500'" />
+                {{ aiHealth?.ok ? 'ElloFive live' : 'Starting AI' }}
+              </span>
               <ChevronDown class="w-3.5 h-3.5 text-gray-400 group-hover:text-gray-600 transition-transform duration-200" :class="{ 'rotate-180': showAgentMenu }" />
             </button>
 
@@ -1110,8 +1135,14 @@ onMounted(() => {
                 <span>{{ msg.timeAgo }}</span>
               </div>
 
-              <div class="text-sm font-normal leading-relaxed text-gray-800 whitespace-pre-wrap">
-                {{ msg.content }}
+              <div class="text-sm font-normal leading-relaxed text-gray-800 space-y-2">
+                <template v-for="(part, idx) in parseMessageParts(msg.content)" :key="idx">
+                  <pre
+                    v-if="part.type === 'code'"
+                    class="overflow-x-auto rounded-xl bg-slate-950 text-slate-100 text-[12px] leading-relaxed p-3 font-mono"
+                  ><span v-if="part.lang" class="block text-[10px] uppercase tracking-wider text-slate-400 mb-1">{{ part.lang }}</span>{{ part.text }}</pre>
+                  <div v-else class="whitespace-pre-wrap">{{ part.text }}</div>
+                </template>
               </div>
               <img
                 v-if="msg.imageUrl"
@@ -1119,7 +1150,8 @@ onMounted(() => {
                 alt="Image made by ElloFive"
                 class="mt-2 max-w-full rounded-xl border border-neutral-200"
               >
-              <div v-if="msg.sources?.length" class="pt-1 space-y-1">
+              <div v-if="msg.sources?.length" class="pt-2 space-y-1">
+                <div class="text-[11px] font-semibold text-gray-500 uppercase tracking-wider">Sources</div>
                 <a
                   v-for="source in msg.sources"
                   :key="source.url"
@@ -1418,7 +1450,7 @@ onMounted(() => {
             <!-- Footer Disclaimer with Prysel Ai Branding -->
             <div class="text-center mt-2.5">
               <p class="text-[11px] text-gray-400">
-                Prysel Ai is powered by European sovereign cloud infrastructure. Models are continuously updated.
+                Ask ElloFive to research live data, write code, or make an image. FRC7 Neuriy runs the tools.
               </p>
             </div>
           </div>

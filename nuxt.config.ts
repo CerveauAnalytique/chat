@@ -5,6 +5,7 @@ export default defineNuxtConfig({
     '@nuxt/content',
   ],
   css: ['~/assets/css/account.css'],
+  telemetry: false,
   routeRules: {
     '/account': { redirect: '/profile' },
     '/apps': { redirect: '/dashboard' }

@@ -1,0 +1,171 @@
+#!/usr/bin/env bash
+# ElloFive — Elite Coding System CLI (Ollama + memory + FRC7 + DeepFakes)
+set -euo pipefail
+
+ELLOFIVE_HOST="${ELLOFIVE_HOST:-http://127.0.0.1:11434}"
+export OLLAMA_HOST="${OLLAMA_HOST:-$ELLOFIVE_HOST}"
+
+OLLAMA_BIN="${OLLAMA_BIN:-$(command -v ollama || true)}"
+if [[ -z "${OLLAMA_BIN}" ]]; then
+  echo "ElloFive: ollama binary not found. Run: bash scripts/install.sh" >&2
+  exit 1
+fi
+
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+if [[ -f "${ROOT}/.ellofive-models.env" ]]; then
+  # shellcheck disable=SC1091
+  source "${ROOT}/.ellofive-models.env"
+fi
+
+cmd="${1:-}"
+
+banner() {
+  cat <<'EOF'
+ _____ _ _       _____ _
+| ____| | | ___ |  ___|(_)_   _____
+|  _| | | |/ _ \| |_   | \ \ / / _ \
+| |___| | | (_) |  _|  | |\ V /  __/
+|_____|_|_|\___/|_|    |_| \_/ \___|
+  Elite Coding System · private · local · FRC7 + Deep Learning
+EOF
+}
+
+ensure_runtime() {
+  if curl -sf "${OLLAMA_HOST}/api/tags" >/dev/null 2>&1; then
+    return 0
+  fi
+  echo "Starting ElloFive runtime..." >&2
+  nohup "${OLLAMA_BIN}" serve >/tmp/ellofive-serve.log 2>&1 &
+  for _ in $(seq 1 40); do
+    curl -sf "${OLLAMA_HOST}/api/tags" >/dev/null 2>&1 && return 0
+    sleep 1
+  done
+  echo "Runtime failed to start. Check /tmp/ellofive-serve.log" >&2
+  return 1
+}
+
+chat_with_memory() {
+  local model="$1"
+  shift || true
+  ensure_runtime
+  local mem
+  mem="$(bash "${ROOT}/bin/ellofive-memory" context 2>/dev/null || true)"
+  if [[ $# -eq 0 ]]; then
+    if [[ -n "${mem}" ]]; then
+      # Seed interactive session with memory via a one-shot then hand off is awkward;
+      # print memory hint and enter interactive run.
+      echo "(Local memory loaded from memory/knowledge-base.md)"
+    fi
+    exec "${OLLAMA_BIN}" run "${model}"
+  fi
+  local prompt="$*"
+  if [[ -n "${mem}" ]]; then
+    prompt="${mem}
+
+USER REQUEST:
+${prompt}"
+  fi
+  # Stream tokens (Ollama default for `run`)
+  exec "${OLLAMA_BIN}" run "${model}" "${prompt}"
+}
+
+case "${cmd}" in
+  ""|-h|--help|help)
+    banner
+    echo ""
+    echo "Usage: ellofive <command> [args...]"
+    echo ""
+    echo "Commands:"
+    echo "  serve              Start Ollama runtime (→ ft.svr.ello5.com)"
+    echo "  api|ui|web         Elloten UI + API (Ello5 model · ai/api.ello5.com)"
+    echo "  chat [prompt]      Elite Coding chat (Pro + local memory)"
+    echo "  fast [prompt]      Fast low-latency chat"
+    echo "  ask <prompt>       Alias for chat with prompt"
+    echo "  memory ...         Local private knowledge base"
+    echo "  run <model>        Raw ollama run"
+    echo "  frc <file.frcl>    Run FRC7 FRCL"
+    echo "  dl|deepfakes       DeepFakes deep learning toolkit"
+    echo "  ubuntu|lab|test-app  Ubuntu Cloud Lab (test my app)"
+    echo "  setup              Rebuild Elite Coding models"
+    echo "  setup-all          Full auto install"
+    echo "  list               List models"
+    echo "  version            Version info"
+    echo ""
+    echo "Elloten (ello5.com) — UX tool for the Ello5 model — see docs/domains.md"
+    echo "Ubuntu Cloud Lab — when user says \"test my app\": ellofive ubuntu test"
+    exit 0
+    ;;
+  version|--version|-v)
+    banner
+    echo ""
+    echo "ElloFive 1.4.0 — Elite Coding System"
+    echo "Ello5 AI mode hosts: ai.ello5.com · api.ello5.com · ft.svr.ello5.com"
+    echo "Web UX tool: Elloten · Model: Ello5"
+    "${OLLAMA_BIN}" --version
+    if [[ -n "${ELLOFIVE_BASE_MODEL:-}" ]]; then
+      echo "Pro base : ${ELLOFIVE_BASE_MODEL}"
+      echo "Fast base: ${ELLOFIVE_FAST_MODEL:-llama3.2:3b}"
+    fi
+    echo "System   : models/elite-coding-system.md"
+    exit 0
+    ;;
+  setup)
+    exec bash "${ROOT}/scripts/setup-model.sh"
+    ;;
+  setup-all|bootstrap)
+    exec bash "${ROOT}/scripts/install.sh"
+    ;;
+  memory|mem)
+    shift || true
+    exec bash "${ROOT}/bin/ellofive-memory" "$@"
+    ;;
+  chat|pro|ask)
+    shift || true
+    chat_with_memory "ellofive" "$@"
+    ;;
+  fast)
+    shift || true
+    chat_with_memory "ellofive-fast" "$@"
+    ;;
+  frc)
+    shift
+    ensure_runtime
+    exec node "${ROOT}/frc/cli.js" "$@"
+    ;;
+  dl|deepfakes|deepfake)
+    shift || true
+    exec bash "${ROOT}/bin/ellofive-dl" "$@"
+    ;;
+  ubuntu|lab|test-app|test-my-app)
+    shift || true
+    # Default subcommand for "test-app" / "test-my-app" aliases
+    if [[ "${cmd}" == "test-app" || "${cmd}" == "test-my-app" ]]; then
+      if [[ $# -eq 0 ]]; then
+        set -- test
+      elif [[ "${1}" != "status" && "${1}" != "setup" && "${1}" != "open" && "${1}" != "test" && "${1}" != "help" && "${1}" != "-h" && "${1}" != "--help" ]]; then
+        set -- test "$@"
+      fi
+    fi
+    exec bash "${ROOT}/bin/ellofive-ubuntu" "$@"
+    ;;
+  list|ls)
+    echo "ElloFive models:"
+    exec "${OLLAMA_BIN}" list
+    ;;
+  serve)
+    exec "${OLLAMA_BIN}" serve
+    ;;
+  api|ui|web|gateway)
+    ensure_runtime
+    if [[ -f "${ROOT}/config/hosts.env" ]]; then
+      # shellcheck disable=SC1091
+      set -a
+      source "${ROOT}/config/hosts.env"
+      set +a
+    fi
+    exec node "${ROOT}/frc/server.js"
+    ;;
+  *)
+    exec "${OLLAMA_BIN}" "$@"
+    ;;
+esac

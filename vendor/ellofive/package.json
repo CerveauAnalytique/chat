@@ -1,0 +1,47 @@
+{
+  "name": "ellofive",
+  "version": "1.4.0",
+  "description": "ElloFive + Ello5 AI mode (ello5.com) — Elite Coding System with FRC7, DeepFakes, API & UI",
+  "type": "module",
+  "bin": {
+    "ellofive": "./bin/ellofive",
+    "ellofive-frc": "./frc/cli.js",
+    "ellofive-dl": "./bin/ellofive-dl",
+    "ellofive-memory": "./bin/ellofive-memory",
+    "ellofive-ubuntu": "./bin/ellofive-ubuntu"
+  },
+  "scripts": {
+    "setup": "bash scripts/setup-model.sh",
+    "build:modelfile": "bash scripts/build-modelfile.sh",
+    "setup:deepfakes": "bash scripts/setup-deepfakes.sh",
+    "install:runtime": "bash scripts/install.sh",
+    "ubuntu:setup": "bash bin/ellofive-ubuntu setup",
+    "ubuntu:status": "bash bin/ellofive-ubuntu status",
+    "serve": "ollama serve",
+    "frc": "node frc/cli.js",
+    "dl": "bash bin/ellofive-dl",
+    "memory": "bash bin/ellofive-memory",
+    "test": "bash scripts/test-ellofive.sh",
+    "api": "node frc/server.js",
+    "ui": "node frc/server.js",
+    "web": "node frc/server.js"
+  },
+  "keywords": [
+    "ellofive",
+    "ello5",
+    "elite-coding",
+    "ollama",
+    "llm",
+    "frc7",
+    "frcl",
+    "deepfakes",
+    "deep-learning"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "express": "^5.2.1"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

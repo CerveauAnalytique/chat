@@ -186,11 +186,17 @@ function conversationalAnswer(q, ctx) {
     return `Based on your question and retrieved notes:\n\n${ctx.rag}\n\nIn short: ${oneLinerTopic(lower)}`;
   }
 
+  if (/Live research:/i.test(q)) {
+    const facts = q.split(/Live research:/i)[1]?.trim();
+    if (facts) {
+      return `I found this from live research:\n\n${clip(facts, 1200)}\n\nAsk a follow-up and I can go deeper, write code, or draw a picture.`;
+    }
+  }
+
   return (
-    `You said: “${clip(q, 280)}”\n\n` +
-    `Here's a direct Neuriy reply: I can chat, reason step-by-step (\`neuriy.reason\`), write code (\`neuriy.code\`), ` +
-    `tutor (\`neuriy.tutor\`), translate (\`neuriy.translate\`), or search the Neuriy Marketplace (\`neuriy.marketplace\`). ` +
-    `Ask a more specific question, or set \`NEURIY_LLM_BASE_URL\` + \`NEURIY_LLM_API_KEY\` for full remote LLM generation.`
+    `You asked: “${clip(q, 280)}”\n\n` +
+    `I can research live data, write code, and generate an image. ` +
+    `Try: “What is the population of France?”, “Write a Python greet function”, or “Draw a sunset over mountains”.`
   );
 }
 
