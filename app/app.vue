@@ -1,8 +1,9 @@
 <script setup lang="ts">
 useHead({
-  title: 'LSKY - AI Data Agent',
+  title: 'AI Data Agent',
+  titleTemplate: (pageTitle) => (pageTitle ? `Prysel | ${pageTitle}` : 'Prysel'),
   meta: [
-    { name: 'description', content: 'LSKY AI Data Agent powered by sovereign cloud infrastructure.' }
+    { name: 'description', content: 'Prysel Ai is an AI data agent powered by sovereign cloud infrastructure.' }
   ],
   link: [
     { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' },

@@ -50,6 +50,10 @@ import {
   Cloud
 } from 'lucide-vue-next'
 
+useHead({
+  title: 'AI Data Agent'
+})
+
 // Authentication
 const { user, initAuth, logout } = useAuth()
 const { config: sdkConfig, initSdk, generateChatResponse } = useSdk()
@@ -86,14 +90,14 @@ interface Conversation {
 }
 
 const defaultConversations: Conversation[] = [
-  { id: 'c-1', title: 'Antwoord afspraak maandag', dateGroup: 'Today', agent: 'LSKY', messages: [] },
-  { id: 'c-2', title: 'Maanlanding bevestigen', dateGroup: 'Today', agent: 'LSKY', messages: [] },
-  { id: 'c-3', title: 'Toekomstige partner visualiseren', dateGroup: 'Today', agent: 'LSKY', messages: [] },
-  { id: 'c-4', title: 'Netjes bod schrijven', dateGroup: 'Yesterday', agent: 'LSKY', messages: [] },
-  { id: 'c-5', title: 'Afkorting Nederland', dateGroup: 'Yesterday', agent: 'LSKY', messages: [] },
-  { id: 'c-6', title: 'Loes ai code vergelijken', dateGroup: 'Previous 7 Days', agent: 'LSKY', messages: [] },
-  { id: 'c-7', title: 'Spelfouten verbeteren', dateGroup: 'Previous 7 Days', agent: 'LSKY', messages: [] },
-  { id: 'c-8', title: 'Terugkomst interpreteren', dateGroup: 'Previous 30 Days', agent: 'LSKY', messages: [] }
+  { id: 'c-1', title: 'Antwoord afspraak maandag', dateGroup: 'Today', agent: 'Prysel Ai', messages: [] },
+  { id: 'c-2', title: 'Maanlanding bevestigen', dateGroup: 'Today', agent: 'Prysel Ai', messages: [] },
+  { id: 'c-3', title: 'Toekomstige partner visualiseren', dateGroup: 'Today', agent: 'Prysel Ai', messages: [] },
+  { id: 'c-4', title: 'Netjes bod schrijven', dateGroup: 'Yesterday', agent: 'Prysel Ai', messages: [] },
+  { id: 'c-5', title: 'Afkorting Nederland', dateGroup: 'Yesterday', agent: 'Prysel Ai', messages: [] },
+  { id: 'c-6', title: 'Loes ai code vergelijken', dateGroup: 'Previous 7 Days', agent: 'Prysel Ai', messages: [] },
+  { id: 'c-7', title: 'Spelfouten verbeteren', dateGroup: 'Previous 7 Days', agent: 'Prysel Ai', messages: [] },
+  { id: 'c-8', title: 'Terugkomst interpreteren', dateGroup: 'Previous 30 Days', agent: 'Prysel Ai', messages: [] }
 ]
 
 // Default conversations initialized matching ChatGPT screenshot
@@ -176,13 +180,13 @@ const selectSearchResult = (chatId: string) => {
 const toastMessage = ref('')
 const toastVisible = ref(false)
 
-// LSKY Agent configuration
-const currentAgent = ref('LSKY')
-const agentList = ref(['LSKY', 'LSKY Finance', 'LSKY Code Cloud', 'LSKY Database Pro'])
+// Prysel Ai Agent configuration
+const currentAgent = ref('Prysel Ai')
+const agentList = ref(['Prysel Ai', 'Prysel Ai Finance', 'Prysel Ai Code Cloud', 'Prysel Ai Database Pro'])
 
-// Database app called LSKY
-const selectedDataSource = ref('LSKY')
-const dataSourceOptions = ['LSKY', 'LSKY European Cloud DB', 'LSKY Analytics Lake', 'Corporate Spreadsheets']
+// Database app called Prysel Ai
+const selectedDataSource = ref('Prysel Ai')
+const dataSourceOptions = ['Prysel Ai', 'Prysel Ai European Cloud DB', 'Prysel Ai Analytics Lake', 'Corporate Spreadsheets']
 
 const selectedModel = ref('claude-3-sonnet')
 const modelOptions = [
@@ -284,7 +288,7 @@ const loadDemoChat = () => {
     id: demoId,
     title: 'Overall sales performance analysis',
     dateGroup: 'Today',
-    agent: 'LSKY',
+    agent: 'Prysel Ai',
     messages: [
       {
         id: 'msg-1',
@@ -296,7 +300,7 @@ const loadDemoChat = () => {
       {
         id: 'msg-2',
         role: 'assistant',
-        author: 'LSKY',
+        author: 'Prysel Ai',
         timeAgo: '2 min ago',
         content: 'Could you specify the type of files and the information you require in the summary?'
       },
@@ -310,7 +314,7 @@ const loadDemoChat = () => {
       {
         id: 'msg-4',
         role: 'assistant',
-        author: 'LSKY',
+        author: 'Prysel Ai',
         timeAgo: '2 min ago',
         content: `For spreadsheets, consider asking:
 
@@ -392,7 +396,7 @@ const copyMessage = async (msg: Message) => {
 const copyShareLink = async () => {
   try {
     await navigator.clipboard.writeText(window.location.href)
-    showToast('LSKY link copied to clipboard!')
+    showToast('Prysel Ai link copied to clipboard!')
   } catch (e) {
     showToast('Link copied!')
   }
@@ -478,7 +482,7 @@ const sendMessage = async () => {
     const newId = 'chat-' + Date.now()
     targetConv = {
       id: newId,
-      title: text ? (text.slice(0, 30) + (text.length > 30 ? '...' : '')) : 'LSKY Data Inquiry',
+      title: text ? (text.slice(0, 30) + (text.length > 30 ? '...' : '')) : 'Prysel Ai Data Inquiry',
       dateGroup: 'Today',
       agent: currentAgent.value,
       messages: []
@@ -523,7 +527,7 @@ const sendMessage = async () => {
       role: 'assistant',
       author: currentAgent.value,
       timeAgo: 'Just now',
-      content: 'An error occurred while contacting the LSKY SDK engine: ' + (err?.message || 'Unknown error')
+      content: 'An error occurred while contacting the Prysel Ai SDK engine: ' + (err?.message || 'Unknown error')
     })
   } finally {
     isTyping.value = false
@@ -659,7 +663,7 @@ onMounted(() => {
       <div class="w-[260px] h-full flex flex-col justify-between overflow-hidden">
         <!-- Sidebar Top Header -->
         <div class="px-3 pt-3.5 pb-1 flex items-center justify-between">
-          <span class="text-[17px] font-semibold text-[#0d0d0d] tracking-tight ml-1">LSKY</span>
+          <img src="/assets/img/prysel.svg" alt="Prysel Ai" class="h-6 w-auto object-contain ml-1" />
           <div class="flex items-center gap-0.5">
             <!-- Search Icon Button (opens popup search modal) -->
             <button
@@ -855,7 +859,7 @@ onMounted(() => {
             v-if="showUserProfileMenu"
             class="absolute bottom-full left-3 right-3 mb-2 bg-white rounded-xl shadow-xl border border-gray-150 py-1.5 z-50 text-xs animate-in fade-in zoom-in-95 duration-100"
           >
-            <div class="px-3 py-1.5 text-[11px] text-gray-400 font-medium">{{ user ? user.email : 'user@lsky.eu' }}</div>
+            <div class="px-3 py-1.5 text-[11px] text-gray-400 font-medium">{{ user ? user.email : 'user@prysel.ai' }}</div>
             <div class="border-t border-gray-100 my-1" />
             <button
               class="w-full text-left px-3 py-1.5 flex items-center gap-2 hover:bg-gray-50 text-gray-700"
@@ -898,7 +902,7 @@ onMounted(() => {
     <div class="flex-1 flex flex-col h-full overflow-y-auto relative">
       <!-- Top Header -->
       <header class="sticky top-0 z-30 bg-white/95 backdrop-blur-sm border-b border-gray-100 h-14 px-4 sm:px-6 flex items-center justify-between">
-        <!-- Left: Sidebar Toggle & LSKY Logo & Agent Switcher -->
+        <!-- Left: Sidebar Toggle & Prysel Ai Logo & Agent Switcher -->
         <div class="flex items-center gap-2">
           <!-- Sidebar Toggle Icon Button (only shown when sidebar is closed to prevent double icon) -->
           <button
@@ -910,29 +914,29 @@ onMounted(() => {
             <PanelLeft class="w-4 h-4 stroke-[1.8]" />
           </button>
 
-          <!-- LSKY Agent Switcher with official logo -->
+          <!-- Prysel Ai Agent Switcher with official logo -->
           <div class="relative" @click.stop>
             <button
               class="flex items-center gap-2.5 py-1 px-2 rounded-lg hover:bg-gray-50 transition-colors group"
               @click="showAgentMenu = !showAgentMenu"
             >
-              <!-- Official LSKY Icon -->
+              <!-- Official Prysel Ai Icon -->
               <img
-                src="/assets/img/icon.svg"
-                alt="LSKY"
-                class="w-6 h-6 object-contain rounded-md shadow-2xs"
+                src="/assets/img/prysel.svg"
+                alt="Prysel Ai"
+                class="h-5 w-auto object-contain"
               />
 
-              <span class="text-sm font-semibold text-gray-800 tracking-tight">{{ currentAgent }}</span>
+              <span class="text-sm font-semibold text-gray-800 tracking-tight max-w-[34vw] sm:max-w-[220px] truncate">{{ currentAgent }}</span>
               <ChevronDown class="w-3.5 h-3.5 text-gray-400 group-hover:text-gray-600 transition-transform duration-200" :class="{ 'rotate-180': showAgentMenu }" />
             </button>
 
             <!-- Agent Switcher Menu -->
             <div
               v-if="showAgentMenu"
-              class="absolute left-0 mt-1.5 w-56 bg-white rounded-xl shadow-xl border border-gray-100 py-1.5 z-50 text-xs animate-in fade-in zoom-in-95 duration-100"
+              class="absolute left-0 mt-1.5 w-64 bg-white rounded-xl shadow-xl border border-gray-100 py-1.5 z-50 text-xs animate-in fade-in zoom-in-95 duration-100"
             >
-              <div class="px-3 py-1.5 text-[11px] font-medium text-gray-400 uppercase tracking-wider">Switch LSKY Agent</div>
+              <div class="px-3 py-1.5 text-[11px] font-medium text-gray-400 uppercase tracking-wider">Switch Prysel Ai Agent</div>
               <button
                 v-for="agent in agentList"
                 :key="agent"
@@ -1028,21 +1032,21 @@ onMounted(() => {
       <!-- Main Chat Container -->
       <main ref="chatContainerRef" class="flex-1 w-full max-w-3xl mx-auto px-4 sm:px-6 pt-6 pb-52 flex flex-col justify-center">
 
-        <!-- CLEAN FIRST-TIME WELCOME SCREEN WITH LSKY LOGO -->
+        <!-- CLEAN FIRST-TIME WELCOME SCREEN WITH Prysel Ai LOGO -->
         <div v-if="messages.length === 0" class="my-auto py-8 flex flex-col items-center text-center space-y-6 animate-in fade-in duration-300">
-          <!-- Official LSKY Logo Header -->
+          <!-- Official Prysel Ai Logo Header -->
           <div class="flex flex-col items-center gap-3">
             <img
-              src="/assets/img/lsky.svg"
-              alt="LSKY CLOUD"
-              class="h-10 w-auto object-contain hover:scale-105 transition-transform"
+              src="/assets/img/prysel.svg"
+              alt="Prysel Ai"
+              class="h-12 w-auto object-contain hover:scale-105 transition-transform"
             />
           </div>
 
           <div class="space-y-1.5 max-w-md">
-            <h2 class="text-xl font-semibold text-gray-900 tracking-tight">How can LSKY assist your data today?</h2>
+            <h2 class="text-xl font-semibold text-gray-900 tracking-tight">How can Prysel Ai assist your data today?</h2>
             <p class="text-xs text-gray-500 leading-relaxed">
-              Connect to the LSKY database, query spreadsheets, compare performance, and discover insights.
+              Connect to the Prysel Ai database, query spreadsheets, compare performance, and discover insights.
             </p>
           </div>
         </div>
@@ -1236,7 +1240,7 @@ onMounted(() => {
 
             <!-- MAIN PROMPT BOX -->
             <div class="bg-white rounded-2xl sm:rounded-3xl border border-gray-200/90 shadow-lg shadow-gray-200/40 p-3.5 sm:p-4 transition-all focus-within:border-gray-300 focus-within:shadow-xl">
-              <!-- Top Row: Add Attachment (+) & Database App called LSKY -->
+              <!-- Top Row: Add Attachment (+) & Database App called Prysel Ai -->
               <div class="flex items-center justify-between mb-2">
                 <!-- (+) Add Attachment Button -->
                 <button
@@ -1247,7 +1251,7 @@ onMounted(() => {
                   <Plus class="w-3.5 h-3.5 stroke-[2.2]" />
                 </button>
 
-                <!-- Database App selector called LSKY -->
+                <!-- Database App selector called Prysel Ai -->
                 <div class="relative" @click.stop>
                   <button
                     class="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-gray-100/80 hover:bg-gray-200/70 text-gray-700 text-xs font-semibold transition-colors"
@@ -1261,7 +1265,7 @@ onMounted(() => {
                   <!-- Data Source Dropdown -->
                   <div
                     v-if="showDataSourceMenu"
-                    class="absolute right-0 mt-1.5 w-52 bg-white rounded-xl shadow-xl border border-gray-100 py-1 z-50 text-xs animate-in fade-in zoom-in-95 duration-100"
+                    class="absolute right-0 mt-1.5 w-64 bg-white rounded-xl shadow-xl border border-gray-100 py-1 z-50 text-xs animate-in fade-in zoom-in-95 duration-100"
                   >
                     <div class="px-3 py-1.5 text-[10px] font-semibold text-gray-400 uppercase tracking-wider">Database Source</div>
                     <button
@@ -1390,10 +1394,10 @@ onMounted(() => {
               </div>
             </div>
 
-            <!-- Footer Disclaimer with LSKY Branding -->
+            <!-- Footer Disclaimer with Prysel Ai Branding -->
             <div class="text-center mt-2.5">
               <p class="text-[11px] text-gray-400">
-                LSKY AI is powered by European sovereign cloud infrastructure. Models are continuously updated.
+                Prysel Ai is powered by European sovereign cloud infrastructure. Models are continuously updated.
               </p>
             </div>
           </div>
@@ -1413,8 +1417,8 @@ onMounted(() => {
       >
         <div class="flex items-center justify-between pb-3 border-b border-gray-100">
           <div class="flex items-center gap-2.5">
-            <img src="/assets/img/icon.svg" class="w-5 h-5 object-contain" alt="LSKY" />
-            <h2 class="text-base font-semibold text-gray-800">Edit LSKY Configuration</h2>
+            <img src="/assets/img/prysel.svg" class="h-5 w-auto object-contain" alt="Prysel Ai" />
+            <h2 class="text-base font-semibold text-gray-800">Edit Prysel Ai Configuration</h2>
           </div>
           <button class="text-gray-400 hover:text-gray-600" @click="showEditModal = false">
             <X class="w-5 h-5" />
@@ -1435,14 +1439,14 @@ onMounted(() => {
             <textarea
               rows="3"
               class="w-full px-3 py-2 border border-gray-200 rounded-lg text-xs text-gray-800 focus:outline-none focus:border-sky-500"
-              value="Expert in quantitative data analysis, spreadsheet parsing (Excel, CSV), identifying discrepancies across multiple sheets, and querying the LSKY database."
+              value="Expert in quantitative data analysis, spreadsheet parsing (Excel, CSV), identifying discrepancies across multiple sheets, and querying the Prysel Ai database."
             />
           </div>
 
           <div>
             <label class="block text-gray-600 font-medium mb-1">Default Knowledge Base</label>
             <select class="w-full px-3 py-2 border border-gray-200 rounded-lg text-xs text-gray-800 focus:outline-none focus:border-sky-500">
-              <option>LSKY Cloud Database</option>
+              <option>Prysel Ai Database</option>
               <option>Corporate Sales Data & Financial Spreadsheets</option>
               <option>Customer CRM & Pipeline</option>
             </select>
@@ -1458,7 +1462,7 @@ onMounted(() => {
           </button>
           <button
             class="px-4 py-2 rounded-lg bg-gray-900 text-white text-xs font-medium hover:bg-black"
-            @click="showEditModal = false; showToast('LSKY settings updated!')"
+            @click="showEditModal = false; showToast('Prysel Ai settings updated!')"
           >
             Save Changes
           </button>
@@ -1487,7 +1491,7 @@ onMounted(() => {
         </div>
 
         <p class="text-xs text-gray-500">
-          Share this agent with your organization or create a public interactive chat link on LSKY Cloud.
+          Share this agent with your organization or create a public interactive chat link on Prysel Ai.
         </p>
 
         <div class="space-y-2 text-xs">
@@ -1495,7 +1499,7 @@ onMounted(() => {
             <div class="flex items-center gap-2.5">
               <Users class="w-4 h-4 text-sky-600" />
               <div>
-                <div class="font-medium text-gray-800">LSKY Team Workspace</div>
+                <div class="font-medium text-gray-800">Prysel Ai Team Workspace</div>
                 <div class="text-[10px] text-gray-400">Available to all members of your company</div>
               </div>
             </div>
@@ -1523,7 +1527,7 @@ onMounted(() => {
           </button>
           <button
             class="px-4 py-2 rounded-lg bg-neutral-900 text-white text-xs font-medium hover:bg-black shadow-sm"
-            @click="showPublishModal = false; showToast('Agent successfully published to LSKY!')"
+            @click="showPublishModal = false; showToast('Agent successfully published to Prysel Ai!')"
           >
             Publish Now
           </button>
@@ -1612,7 +1616,7 @@ onMounted(() => {
                 @click="showUpgradeModal = true; showSearchModal = false"
               >
                 <Sparkles class="w-4 h-4 text-amber-500" />
-                <span class="font-medium">Upgrade to LSKY Pro</span>
+                <span class="font-medium">Upgrade to Prysel Ai Pro</span>
               </button>
             </div>
 
@@ -1654,7 +1658,7 @@ onMounted(() => {
             <SunflowerAvatar className="w-10 h-10 border border-neutral-200" />
             <div>
               <h2 class="text-base font-bold text-neutral-900 leading-tight">{{ userDisplayName }}</h2>
-              <p class="text-xs text-neutral-500">{{ user?.email || 'erickson@lsky.eu' }}</p>
+              <p class="text-xs text-neutral-500">{{ user?.email || 'erickson@prysel.ai' }}</p>
             </div>
           </div>
           <button class="p-1.5 rounded-lg text-neutral-400 hover:text-neutral-700 hover:bg-neutral-100" @click="showUserAccountModal = false">
@@ -1708,7 +1712,7 @@ onMounted(() => {
             <div>
               <label class="block font-semibold text-neutral-700 mb-1">Email Address</label>
               <input
-                :value="user?.email || 'erickson@lsky.eu'"
+                :value="user?.email || 'erickson@prysel.ai'"
                 disabled
                 class="w-full px-3 py-2 border border-neutral-200 rounded-xl text-xs text-neutral-500 bg-neutral-50 cursor-not-allowed"
               />
@@ -1737,7 +1741,7 @@ onMounted(() => {
             <div class="p-4 rounded-xl border border-neutral-200 bg-neutral-50 flex items-center justify-between">
               <div class="space-y-1">
                 <span class="text-[10px] font-semibold text-sky-600 bg-sky-50 px-2 py-0.5 rounded-full border border-sky-200">CURRENT PLAN</span>
-                <h3 class="text-sm font-bold text-neutral-900">LSKY Free Tier</h3>
+                <h3 class="text-sm font-bold text-neutral-900">Prysel Ai Free Tier</h3>
                 <p class="text-[11px] text-neutral-500">Standard compute, basic spreadsheets, community support</p>
               </div>
               <button
@@ -1761,7 +1765,7 @@ onMounted(() => {
                 </div>
                 <div class="flex items-center justify-between">
                   <span class="text-neutral-500">Database Engine:</span>
-                  <span class="font-semibold text-neutral-800">LSKY NVMe Analytics Lake</span>
+                  <span class="font-semibold text-neutral-800">Prysel Ai NVMe Analytics Lake</span>
                 </div>
               </div>
             </div>
@@ -1772,7 +1776,7 @@ onMounted(() => {
             <div class="p-3.5 rounded-xl border border-neutral-100 bg-neutral-50/60 space-y-1">
               <div class="font-semibold text-neutral-800">Cloud SDK OneAuth Session</div>
               <div class="text-[11px] text-neutral-500 leading-relaxed font-mono break-all">
-                Token: lsky_oa_live_{{ user ? 'valid' : 'demo' }}...
+                Token: prysel_oa_live_{{ user ? 'valid' : 'demo' }}...
               </div>
             </div>
             <div class="flex items-center justify-between p-3 rounded-xl border border-neutral-100">
@@ -1846,8 +1850,8 @@ onMounted(() => {
         <div class="flex items-start justify-between">
           <div class="space-y-1">
             <div class="flex items-center gap-2">
-              <img src="/assets/img/icon.svg" class="w-6 h-6 object-contain" alt="LSKY" />
-              <h2 class="text-xl font-bold text-neutral-900">Upgrade to LSKY Pro</h2>
+              <img src="/assets/img/prysel.svg" class="h-6 w-auto object-contain" alt="Prysel Ai" />
+              <h2 class="text-xl font-bold text-neutral-900">Upgrade to Prysel Ai Pro</h2>
             </div>
             <p class="text-xs text-neutral-500">Supercharge your data analysis with sovereign cloud infrastructure.</p>
           </div>
@@ -1872,7 +1876,7 @@ onMounted(() => {
                 </div>
                 <div class="flex items-center gap-2">
                   <Check class="w-3.5 h-3.5 text-emerald-600 flex-shrink-0" />
-                  <span>Basic LSKY Database queries</span>
+                  <span>Basic Prysel Ai Database queries</span>
                 </div>
                 <div class="flex items-center gap-2">
                   <Check class="w-3.5 h-3.5 text-emerald-600 flex-shrink-0" />
@@ -1889,14 +1893,14 @@ onMounted(() => {
             </button>
           </div>
 
-          <!-- LSKY Pro -->
+          <!-- Prysel Ai Pro -->
           <div class="p-5 rounded-2xl border-2 border-neutral-900 space-y-4 bg-white flex flex-col justify-between relative shadow-lg">
             <div class="absolute -top-3 right-4 bg-neutral-900 text-white text-[10px] font-bold px-2.5 py-0.5 rounded-full tracking-wide">
               RECOMMENDED
             </div>
 
             <div class="space-y-2">
-              <div class="text-xs font-semibold text-sky-600 uppercase tracking-wider">LSKY Pro</div>
+              <div class="text-xs font-semibold text-sky-600 uppercase tracking-wider">Prysel Ai Pro</div>
               <div class="text-2xl font-bold text-neutral-900">€20 <span class="text-xs font-normal text-neutral-500">/ month</span></div>
               <p class="text-xs text-neutral-500">Unlimited intelligence, highest models, and sovereign datacenter priority.</p>
               
@@ -1926,9 +1930,9 @@ onMounted(() => {
 
             <button
               class="w-full py-2.5 rounded-xl bg-neutral-900 hover:bg-black text-white text-xs font-bold transition-all shadow-md active:scale-99"
-              @click="showToast('Upgraded to LSKY Pro!'); showUpgradeModal = false"
+              @click="showToast('Upgraded to Prysel Ai Pro!'); showUpgradeModal = false"
             >
-              Upgrade to LSKY Pro
+              Upgrade to Prysel Ai Pro
             </button>
           </div>
         </div>
@@ -1962,7 +1966,7 @@ onMounted(() => {
             </div>
             <div>
               <h2 class="text-sm font-bold text-neutral-900 capitalize">{{ activeFeatureType }}</h2>
-              <p class="text-[11px] text-neutral-500">LSKY Cloud integrated workspace</p>
+              <p class="text-[11px] text-neutral-500">Prysel Ai integrated workspace</p>
             </div>
           </div>
           <button class="p-1 rounded-lg text-neutral-400 hover:text-neutral-700" @click="showFeatureModal = false">
@@ -2009,16 +2013,16 @@ onMounted(() => {
                 <span class="font-semibold text-neutral-800">Weekly Revenue Summary</span>
                 <span class="text-[10px] bg-emerald-50 text-emerald-600 px-2 py-0.5 rounded-full font-medium">Active</span>
               </div>
-              <p class="text-[11px] text-neutral-500">Runs every Monday at 08:00 CET against LSKY Database.</p>
+              <p class="text-[11px] text-neutral-500">Runs every Monday at 08:00 CET against Prysel Ai Database.</p>
             </div>
           </div>
 
           <!-- PLUGINS -->
           <div v-else-if="activeFeatureType === 'plugins'" class="space-y-2">
-            <p class="text-neutral-600">Connect LSKY with your European cloud data ecosystem.</p>
+            <p class="text-neutral-600">Connect Prysel Ai with your European cloud data ecosystem.</p>
             <div class="p-3 rounded-xl border border-neutral-100 flex items-center justify-between">
               <div>
-                <div class="font-semibold text-neutral-800">LSKY Cloud Database (PostgreSQL)</div>
+                <div class="font-semibold text-neutral-800">Prysel Ai Database (PostgreSQL)</div>
                 <div class="text-[11px] text-neutral-500">Direct SQL query and live analytics lake</div>
               </div>
               <span class="text-emerald-600 font-semibold text-[11px]">Connected</span>
@@ -2046,7 +2050,7 @@ onMounted(() => {
 
           <!-- CLOUD HOSTING -->
           <div v-else-if="activeFeatureType === 'cloud'" class="space-y-3">
-            <p class="text-neutral-600">LSKY Self-Hosted Cloud Infrastructure — OpenNebula KVM virtualization, Ceph/ZFS datastores, and sovereign European server clusters.</p>
+            <p class="text-neutral-600">Prysel Ai Self-Hosted Cloud Infrastructure — OpenNebula KVM virtualization, Ceph/ZFS datastores, and sovereign European server clusters.</p>
             
             <div class="grid grid-cols-2 gap-3">
               <div class="p-3 rounded-xl border border-neutral-100 bg-neutral-50/70 space-y-1">
@@ -2062,15 +2066,15 @@ onMounted(() => {
             </div>
 
             <div class="p-3 rounded-xl bg-neutral-900 text-neutral-100 font-mono text-[11px] space-y-1">
-              <div class="text-sky-400"># LSKY Cloud Self-Hosting Daemon</div>
-              <div>$ lsky-agent --status --cluster=eu-central-1</div>
+              <div class="text-sky-400"># Prysel Ai Self-Hosting Daemon</div>
+              <div>$ prysel-agent --status --cluster=eu-central-1</div>
               <div class="text-emerald-400">✓ OpenNebula KVM Orchestrator: Connected</div>
               <div class="text-emerald-400">✓ European Datacenter: 100% GDPR Sovereign</div>
             </div>
 
             <button
               class="w-full py-2.5 rounded-xl bg-neutral-900 text-white font-semibold flex items-center justify-center gap-1.5 hover:bg-black transition-colors text-xs shadow-xs"
-              @click="showFeatureModal = false; showToast('Navigating to LSKY Self-Hosted Cloud Console...')"
+              @click="showFeatureModal = false; showToast('Navigating to Prysel Ai Self-Hosted Cloud Console...')"
             >
               <Cloud class="w-3.5 h-3.5 text-sky-400" />
               <span>Manage Self-Hosted Cloud</span>

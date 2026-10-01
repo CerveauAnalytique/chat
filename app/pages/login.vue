@@ -3,9 +3,9 @@ import { ref } from 'vue'
 import { User, Lock, Eye, EyeOff, Loader2 } from 'lucide-vue-next'
 
 useHead({
-  title: 'Login | LSKY Cloud',
+  title: 'Login',
   meta: [
-    { name: 'description', content: 'Login to your LSKY Cloud account to manage domains, servers, databases, and AI data agents.' }
+    { name: 'description', content: 'Login to your Prysel Ai account to manage domains, servers, databases, and AI data agents.' }
   ]
 })
 
@@ -48,7 +48,7 @@ const handleSocialClick = async (provider: string) => {
   // Quick direct login via Google / GitHub SSO for seamless demo & real use
   isLoading.value = true
   await new Promise((resolve) => setTimeout(resolve, 400))
-  await login({ email: `${provider.toLowerCase()}-user@lsky.eu` })
+  await login({ email: `${provider.toLowerCase()}-user@prysel.ai` })
   router.push('/')
 }
 </script>
@@ -57,12 +57,12 @@ const handleSocialClick = async (provider: string) => {
   <div class="min-h-screen bg-white flex flex-col justify-center py-12 px-4 sm:px-6 font-sans antialiased text-neutral-900 selection:bg-sky-100 selection:text-sky-900">
     <!-- Centered clean container matching lsky-eu, no card border, no gray lines -->
     <div class="w-full max-w-[420px] mx-auto my-auto">
-      <!-- Brand Header with official LSKY Logo -->
+      <!-- Brand Header with official Prysel Ai Logo -->
       <div class="flex items-center justify-center mb-8">
         <NuxtLink to="/" class="inline-flex items-center group">
           <img
-            src="/assets/img/lsky.svg"
-            alt="LSKY CLOUD"
+            src="/assets/img/prysel.svg"
+            alt="Prysel Ai"
             class="h-9 w-auto object-contain transition-transform group-hover:scale-105"
           />
         </NuxtLink>
@@ -218,7 +218,7 @@ const handleSocialClick = async (provider: string) => {
             <a
               href="#"
               class="font-semibold text-neutral-900 hover:text-black underline underline-offset-4 decoration-neutral-300 hover:decoration-neutral-900 transition-all"
-              @click.prevent="error = 'Registration is managed by your LSKY enterprise administrator.'"
+              @click.prevent="error = 'Registration is managed by your Prysel Ai enterprise administrator.'"
             >
               Create here
             </a>
@@ -229,7 +229,7 @@ const handleSocialClick = async (provider: string) => {
 
     <!-- Bottom copyright -->
     <div class="text-center text-xs text-neutral-400">
-      &copy; {{ new Date().getFullYear() }} LSKY Cloud. All rights reserved.
+      &copy; {{ new Date().getFullYear() }} Prysel Ai. All rights reserved.
     </div>
   </div>
 </template>

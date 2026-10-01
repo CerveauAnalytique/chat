@@ -67,7 +67,7 @@ export const useAuth = () => {
             const oneAuthSession = formatOneAuth('oneadmin', 'lsky_cloud_token')
             user.value = {
               name: 'Mark',
-              email: 'mark@lsky.eu',
+              email: 'mark@prysel.ai',
               role: 'Enterprise Administrator',
               oneAuth: oneAuthSession
             }
@@ -77,7 +77,7 @@ export const useAuth = () => {
       } catch (e) {
         user.value = {
           name: 'Mark',
-          email: 'mark@lsky.eu',
+          email: 'mark@prysel.ai',
           role: 'Enterprise Administrator'
         }
       }
@@ -95,7 +95,7 @@ export const useAuth = () => {
 
     let finalUser: LskyUser = {
       name: rawUser.charAt(0).toUpperCase() + rawUser.slice(1),
-      email: credentials.email.includes('@') ? credentials.email : `${credentials.email}@lsky.eu`,
+      email: credentials.email.includes('@') ? credentials.email : `${credentials.email}@prysel.ai`,
       role: 'Enterprise Administrator',
       oneAuth: sessionString
     }

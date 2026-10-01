@@ -50,12 +50,12 @@ const playgroundPrompt = ref('Analyze the latest quarterly revenue growth and re
 const saveToast = ref(false)
 
 const providerPresets: Record<string, { endpoint: string; model: string }> = {
-  lsky: { endpoint: 'https://api.lsky.eu/v1', model: 'lsky-sovereign-v1' },
+  lsky: { endpoint: 'https://api.prysel.ai/v1', model: 'prysel-sovereign-v1' },
   openai: { endpoint: 'https://api.openai.com/v1', model: 'gpt-4o' },
   anthropic: { endpoint: 'https://api.anthropic.com/v1', model: 'claude-3-5-sonnet-20241022' },
   gemini: { endpoint: 'https://generativelanguage.googleapis.com/v1beta', model: 'gemini-1.5-pro' },
   ollama: { endpoint: 'http://localhost:11434/v1', model: 'llama3.2' },
-  custom: { endpoint: 'https://api.lsky.eu/v1', model: 'custom-model' }
+  custom: { endpoint: 'https://api.prysel.ai/v1', model: 'custom-model' }
 }
 
 const onProviderChange = () => {
@@ -114,9 +114,9 @@ const close = () => {
           </div>
           <div>
             <div class="flex items-center gap-2">
-              <h2 class="text-sm font-bold text-neutral-900">LSKY SDK & Model Engine</h2>
+              <h2 class="text-sm font-bold text-neutral-900">Prysel Ai SDK & Model Engine</h2>
               <span class="text-[10px] font-mono px-2 py-0.5 rounded-full bg-sky-50 text-sky-700 border border-sky-200/60 font-semibold">
-                @lsky/cloud-sdk v1.2
+                Prysel Ai SDK v1.2
               </span>
             </div>
             <p class="text-[11px] text-neutral-500">Configure LLM providers, hyper-parameters, test completions, and export client code</p>
@@ -183,7 +183,7 @@ const close = () => {
                 class="w-full px-3 py-2 bg-neutral-50 border border-neutral-200 rounded-xl text-neutral-800 text-xs focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 outline-none"
                 @change="onProviderChange"
               >
-                <option value="lsky">LSKY Sovereign Cloud AI (Frankfurt DC-01)</option>
+                <option value="lsky">Prysel Ai Sovereign Cloud (Frankfurt DC-01)</option>
                 <option value="openai">OpenAI (GPT-4o, GPT-4o-mini)</option>
                 <option value="anthropic">Anthropic (Claude 3.5 Sonnet)</option>
                 <option value="gemini">Google Gemini (Gemini 1.5 Pro)</option>
@@ -209,7 +209,7 @@ const close = () => {
               <input
                 v-model="config.endpoint"
                 type="text"
-                placeholder="https://api.lsky.eu/v1"
+                placeholder="https://api.prysel.ai/v1"
                 class="w-full px-3 py-2 bg-neutral-50 border border-neutral-200 rounded-xl text-neutral-800 text-xs focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 outline-none font-mono"
               />
             </div>
@@ -219,7 +219,7 @@ const close = () => {
               <input
                 v-model="config.model"
                 type="text"
-                placeholder="lsky-sovereign-v1"
+                placeholder="prysel-sovereign-v1"
                 class="w-full px-3 py-2 bg-neutral-50 border border-neutral-200 rounded-xl text-neutral-800 text-xs focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 outline-none font-mono"
               />
             </div>
@@ -235,7 +235,7 @@ const close = () => {
               <input
                 v-model="config.apiKey"
                 :type="showApiKey ? 'text' : 'password'"
-                placeholder="sk-lsky-..."
+                placeholder="sk-prysel-..."
                 class="w-full pl-3 pr-10 py-2 bg-neutral-50 border border-neutral-200 rounded-xl text-neutral-800 text-xs focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 outline-none font-mono"
               />
               <button
@@ -399,7 +399,7 @@ const close = () => {
         <div v-else-if="activeTab === 'code'" class="space-y-4">
           <div class="flex items-center justify-between">
             <p class="text-neutral-600">
-              Integrate the LSKY SDK directly into your TypeScript/Node.js, Python, or bash applications.
+              Integrate the Prysel Ai SDK directly into your TypeScript/Node.js, Python, or bash applications.
             </p>
 
             <div class="flex items-center gap-1 bg-neutral-100 p-0.5 rounded-lg">
@@ -444,7 +444,7 @@ const close = () => {
         <!-- 4. CLUSTER & INFRASTRUCTURE TAB -->
         <div v-else class="space-y-4">
           <p class="text-neutral-600">
-            Current European cluster orchestration backing this LSKY instance via OpenNebula (KVM) + Ceph/ZFS.
+            Current European cluster orchestration backing this Prysel Ai instance via OpenNebula (KVM) + Ceph/ZFS.
           </p>
 
           <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
@@ -479,7 +479,7 @@ const close = () => {
               {{ config.oneAuthSession }}
             </div>
             <p class="text-[10px] text-neutral-400">
-              This token is auto-provisioned by @lsky/cloud-sdk for authenticating storage calls and VM state verification.
+              This token is auto-provisioned by the Prysel Ai SDK for authenticating storage calls and VM state verification.
             </p>
           </div>
         </div>

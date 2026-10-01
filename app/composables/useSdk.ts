@@ -25,13 +25,13 @@ export interface SdkTestResult {
 
 const defaultConfig: SdkConfig = {
   provider: 'lsky',
-  endpoint: 'https://api.lsky.eu/v1',
+  endpoint: 'https://api.prysel.ai/v1',
   apiKey: '',
-  model: 'lsky-sovereign-v1',
+  model: 'prysel-sovereign-v1',
   temperature: 0.7,
   maxTokens: 4096,
   topP: 0.9,
-  systemPrompt: 'You are LSKY Enterprise Intelligence, an AI assistant connected to sovereign European cloud infrastructure and databases.',
+  systemPrompt: 'You are Prysel Ai Enterprise Intelligence, an AI assistant connected to sovereign European cloud infrastructure and databases.',
   streamResponse: true,
   clusterRegion: 'eu-central-1 (Frankfurt DC-01)',
   oneAuthSession: 'oneadmin:c8f93e2b1a0d4567ef890123456789ab'
@@ -74,15 +74,15 @@ export function useSdk() {
 
   // Generate code snippet based on current config
   const getCodeSnippet = (language: 'typescript' | 'python' | 'curl') => {
-    const ep = config.value.endpoint || 'https://api.lsky.eu/v1'
-    const mdl = config.value.model || 'lsky-sovereign-v1'
-    const key = config.value.apiKey ? 'sk-...' : 'YOUR_LSKY_API_KEY'
+    const ep = config.value.endpoint || 'https://api.prysel.ai/v1'
+    const mdl = config.value.model || 'prysel-sovereign-v1'
+    const key = config.value.apiKey ? 'sk-...' : 'YOUR_PRYSEL_API_KEY'
     const temp = config.value.temperature
 
     if (language === 'typescript') {
-      return `import { LskyClient } from '@lsky/cloud-sdk'
+      return `import { PryselClient } from '@prysel/cloud-sdk'
 
-const client = new LskyClient({
+const client = new PryselClient({
   endpoint: '${ep}',
   apiKey: '${key}',
   region: '${config.value.clusterRegion}'
@@ -106,9 +106,9 @@ run()`
 
     if (language === 'python') {
       return `import os
-from lsky import LskyClient
+from prysel import PryselClient
 
-client = LskyClient(
+client = PryselClient(
     base_url="${ep}",
     api_key="${key}",
     region="${config.value.clusterRegion}"
@@ -143,7 +143,7 @@ print(completion.choices[0].message.content)`
   const testConnection = async (customPrompt?: string): Promise<SdkTestResult> => {
     isTesting.value = true
     const startTime = Date.now()
-    const prompt = customPrompt || 'Ping LSKY SDK cluster and verify inference readiness.'
+    const prompt = customPrompt || 'Ping Prysel Ai SDK cluster and verify inference readiness.'
     
     testLogs.value.unshift(`[${new Date().toLocaleTimeString()}] Initiating SDK test to ${config.value.endpoint}...`)
 
@@ -197,7 +197,7 @@ print(completion.choices[0].message.content)`
     await new Promise(r => setTimeout(r, 650))
     const latency = Date.now() - startTime
     
-    const mockOutput = `[LSKY SDK Response - Model: ${config.value.model}]
+    const mockOutput = `[Prysel Ai SDK Response - Model: ${config.value.model}]
 Region: ${config.value.clusterRegion}
 Status: Online & Ready for Inference
 Latency: ${latency}ms
@@ -260,7 +260,7 @@ Connection established successfully. The SDK interface is active and prepared fo
     await new Promise(r => setTimeout(r, 750))
 
     if (files.length > 0) {
-      return `I analyzed and combined **${files.map(f => f.name).join('** and **')}** via **LSKY SDK (${config.value.model})**:
+      return `I analyzed and combined **${files.map(f => f.name).join('** and **')}** via **Prysel Ai SDK (${config.value.model})**:
 
 ### Executive Summary:
 - **Total Combined Revenue:** $4,820,000 (Q4 grew by +18.4% compared to Q3).
@@ -270,19 +270,19 @@ Connection established successfully. The SDK interface is active and prepared fo
   2. Currency exchange variation in European transactions accounted for a $32k variance.
 
 ### Recommended Next Actions:
-- Export consolidated reconciliation sheet to your LSKY Cloud repository.
+- Export consolidated reconciliation sheet to your Prysel Ai repository.
 - Generate visual cohort charts for Q3 vs Q4 regional retention rates.`
     }
 
     if (prompt.toLowerCase().includes('spreadsheet') || prompt.toLowerCase().includes('ask')) {
-      return `For spreadsheets via the LSKY SDK, consider asking:
+      return `For spreadsheets via the Prysel Ai SDK, consider asking:
 
-- How can I compare data across multiple sheets in LSKY?
+- How can I compare data across multiple sheets in Prysel Ai?
 - Can I detect discrepancies between versions?
 - What's the best method to visualize data differences?`
     }
 
-    return `I've processed your inquiry using **${config.value.model}** via the **LSKY Cloud SDK** (Endpoint: \`${config.value.endpoint}\`, Temp: ${config.value.temperature}).
+    return `I've processed your inquiry using **${config.value.model}** via the **Prysel Ai SDK** (Endpoint: \`${config.value.endpoint}\`, Temp: ${config.value.temperature}).
 
 - **Analysis:** All parameters verified within normal bounds.
 - **Data Source:** Verified European sovereign cluster (${config.value.clusterRegion}).
