@@ -83,10 +83,9 @@ const authFetch = async (path: string, init: RequestInit = {}) => {
   if (init.body && !headers.has('Content-Type')) {
     headers.set('Content-Type', 'application/json')
   }
-  return fetch(`${AUTH_PRYSEL_URL}${path}`, {
+  return fetch(path.replace(/^\/api\/auth/, '/api/prysel'), {
     ...init,
-    headers,
-    credentials: 'include'
+    headers
   })
 }
 
