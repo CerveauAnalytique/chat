@@ -214,7 +214,7 @@ const handleSocialClick = async (provider: string) => {
         <!-- Create Account Footer Link -->
         <div class="pt-4 text-center">
           <p class="text-sm text-neutral-600">
-            Don't have an account?{' '}
+            Don't have an account?
             <a
               href="#"
               class="font-semibold text-neutral-900 hover:text-black underline underline-offset-4 decoration-neutral-300 hover:decoration-neutral-900 transition-all"
