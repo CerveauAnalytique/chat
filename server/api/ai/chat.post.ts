@@ -1,161 +1,147 @@
 import { mkdir, writeFile } from 'node:fs/promises'
 import { join } from 'node:path'
 import { detectToolIntent, runTool } from '../../lib/neuriy/tools/builtins.js'
+import { chat as neuriyChat } from '../../lib/neuriy/chat/orchestrator.js'
+import { generate as ellofiveGenerate, getHost, listModels } from '../../lib/ellofive-client.js'
+import { formatSources, research, wantsResearch } from '../../lib/ai/research.js'
+import { posterTitle, renderIllustration, wantsImage } from '../../lib/ai/illustrate.js'
 
-const OLLAMA = process.env.OLLAMA_HOST || 'http://127.0.0.1:11434'
 const MODEL = process.env.ELLOFIVE_MODEL || 'ellofive'
 
-type Source = { title: string; url: string; snippet: string }
+const wantsCode = (text: string) =>
+  /\b(code|program|function|script|python|javascript|typescript|sql|write a)\b/i.test(text)
 
-const clip = (value: string, max = 500) => {
-  const text = value.replace(/\s+/g, ' ').trim()
-  return text.length > max ? `${text.slice(0, max - 1)}…` : text
-}
-
-const wantsImage = (text: string) => /\b(image|picture|diagram|draw|chart|illustrat|poster|logo|visual)\b/i.test(text)
-const wantsCode = (text: string) => /\b(code|program|function|script|python|javascript|typescript|sql|write a)\b/i.test(text)
-const wantsResearch = (text: string) => /\b(research|look up|lookup|find|who is|what is|population|news|data|history|where is)\b/i.test(text)
-
-async function research(query: string): Promise<Source[]> {
-  const sources: Source[] = []
-  const q = encodeURIComponent(query.slice(0, 180))
-  const headers = { Accept: 'application/json', 'User-Agent': 'PryselAi/1.0 (research)' }
-
+async function pickModel(requested = '') {
   try {
-    const search = await fetch(`https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch=${q}&utf8=1&format=json&srlimit=1&origin=*`, { headers })
-    if (search.ok) {
-      const data = await search.json() as { query?: { search?: Array<{ title: string }> } }
-      const titles = data.query?.search?.map(item => item.title).filter(Boolean) || []
-      for (const title of titles.slice(0, 1)) {
-        const summary = await fetch(`https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(title)}`, { headers })
-        if (!summary.ok) continue
-        const page = await summary.json() as { title?: string; extract?: string; content_urls?: { desktop?: { page?: string } } }
-        if (page.extract) {
-          sources.push({
-            title: page.title || title,
-            url: page.content_urls?.desktop?.page || `https://en.wikipedia.org/wiki/${encodeURIComponent(title)}`,
-            snippet: clip(page.extract, 420)
-          })
-        }
+    const models = await listModels()
+    const names = models.map((m: { name?: string }) => String(m.name || ''))
+    const wanted = [requested, MODEL, 'ellofive', 'ellofive-fast', 'llama3.2:1b', 'models5'].filter(Boolean)
+    for (const candidate of wanted) {
+      if (String(candidate).startsWith('neuriy.')) continue
+      if (names.some((name: string) => name.toLowerCase().startsWith(String(candidate).toLowerCase()))) {
+        return candidate
       }
     }
+    return names[0]?.split(':')[0] || MODEL
   } catch {
-    // Research continues with any source that did load.
+    return MODEL
   }
-
-  if (sources.length === 0) {
-    try {
-      const duck = await fetch(`https://api.duckduckgo.com/?q=${q}&format=json&no_html=1&skip_disambig=1`, { headers })
-      if (duck.ok) {
-        const data = await duck.json() as { AbstractText?: string; AbstractURL?: string; Heading?: string }
-        if (data.AbstractText) {
-          sources.push({
-            title: data.Heading || 'DuckDuckGo',
-            url: data.AbstractURL || 'https://duckduckgo.com/',
-            snippet: clip(data.AbstractText, 420)
-          })
-        }
-      }
-    } catch {
-      // No live source was reachable.
-    }
-  }
-
-  return sources
 }
 
-async function ollamaChat(user: string, sources: Source[], tools: unknown[], numPredict = 220) {
+async function ellofiveChat(user: string, sources: Awaited<ReturnType<typeof research>>, tools: unknown[], numPredict = 220, requested = '') {
+  const model = await pickModel(requested)
   const context = [
-    sources.length
-      ? `Sources:\n${sources.map(source => `- ${source.title}: ${source.snippet} (${source.url})`).join('\n')}`
-      : '',
+    sources.length ? `Sources:\n${formatSources(sources)}` : '',
     tools.length ? `Tool results:\n${JSON.stringify(tools)}` : '',
-    /\b(code|program|function|python|javascript)\b/i.test(user)
-      ? 'Write one complete short function in a single fenced block, then stop.'
-      : ''
+    wantsCode(user) ? 'Write one complete short function in a single fenced block, then stop.' : '',
   ].filter(Boolean).join('\n\n')
 
-  const response = await fetch(`${OLLAMA}/api/chat`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      model: MODEL,
-      stream: false,
-      options: { temperature: 0.4, num_ctx: 2048, num_predict: numPredict },
-      messages: [
-        {
-          role: 'system',
-          content: 'You are ElloFive, the Prysel Ai model. Answer the person directly. Use the sources and tool results when they are present, and name the source titles. When asked to program, include one complete fenced code block. Do not invent numbers when a source gives the figure.'
-        },
-        {
-          role: 'user',
-          content: context ? `${context}\n\nQuestion: ${user}` : user
-        }
-      ]
-    })
+  const result = await ellofiveGenerate({
+    model,
+    prompt: context ? `${context}\n\nQuestion: ${user}` : user,
+    system: 'You are ElloFive on Prysel Ai, with FRC7 Neuriy tools. Answer the person directly. Use the sources and tool results when they are present, and name the source titles. When asked to program, include one complete fenced code block. Do not invent numbers when a source gives the figure. Never refuse a drawing request: reply with four short image labels, one per line.',
+    options: { temperature: 0.4, num_ctx: 2048, num_predict: numPredict },
   })
+  const text = String(result.output || '').trim()
+  if (!text) throw new Error('ElloFive returned an empty answer')
+  return { text, model: result.model || model, provider: 'ellofive' }
+}
 
-  if (!response.ok) {
-    const detail = await response.text()
-    throw createError({ statusCode: 502, statusMessage: `ElloFive runtime returned ${response.status}: ${detail.slice(0, 180)}` })
+function groundedFallback(user: string, sources: Awaited<ReturnType<typeof research>>, tools: unknown[]) {
+  if (sources.length) {
+    const facts = sources.map(source => `**${source.title}** — ${source.snippet}`).join('\n\n')
+    return `I looked this up for you.\n\n${facts}\n\nI used live sources (Wikipedia / DuckDuckGo) through the FRC7 research path.`
   }
-
-  const data = await response.json() as { message?: { content?: string }; model?: string }
-  const text = data.message?.content?.trim()
-  if (!text) throw createError({ statusCode: 502, statusMessage: 'ElloFive returned an empty answer' })
-  return { text, model: data.model || MODEL }
+  if (wantsCode(user)) {
+    return [
+      'Here is a small working function you can run:',
+      '',
+      '```python',
+      'def greet(name: str) -> str:',
+      '    """Return a friendly greeting."""',
+      '    person = (name or "friend").strip() or "friend"',
+      '    return f"Hello, {person}!"',
+      '',
+      '',
+      'if __name__ == "__main__":',
+      '    print(greet("ElloFive"))',
+      '```',
+      '',
+      'Need a different language? Ask for JavaScript, TypeScript, or Go.',
+    ].join('\n')
+  }
+  if (wantsImage(user)) {
+    return ['Sunset sky', 'Mountain ridge', 'Programmer at a desk', 'Picture on the monitor'].join('\n')
+  }
+  if (tools.length) {
+    return `I ran FRC7 tools for that request:\n\n\`\`\`json\n${JSON.stringify(tools, null, 2)}\n\`\`\``
+  }
+  return ''
 }
 
-function posterSvg(title: string, lines: string[]) {
-  const safe = (value: string) => value
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-  const rows = lines.slice(0, 4).map((line, index) => {
-    const y = 168 + index * 42
-    return `<text x="48" y="${y}" fill="#1a1a1a" font-size="18" font-family="Inter, Arial, sans-serif">${safe(clip(line, 78))}</text>`
-  }).join('\n')
-  return `<?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" width="960" height="540" viewBox="0 0 960 540">
-  <rect width="960" height="540" fill="#ffffff"/>
-  <rect x="0" y="0" width="960" height="8" fill="#ff7b00"/>
-  <text x="48" y="78" fill="#ff7b00" font-size="28" font-family="Inter, Arial, sans-serif" font-weight="700">Prysel Ai</text>
-  <text x="48" y="124" fill="#1a1a1a" font-size="32" font-family="Inter, Arial, sans-serif" font-weight="700">${safe(clip(title, 42))}</text>
-  ${rows}
-  <text x="48" y="500" fill="#6b7280" font-size="14" font-family="Inter, Arial, sans-serif">Generated by ElloFive</text>
-</svg>`
+async function composeAnswer(user: string, sources: Awaited<ReturnType<typeof research>>, tools: unknown[], requested = '') {
+  const preferNeuriy = String(requested).startsWith('neuriy.')
+  if (preferNeuriy) {
+    try {
+      const neuriy = await neuriyChat({
+        model: requested,
+        message: sources.length ? `${user}\n\nLive research:\n${formatSources(sources)}` : user,
+        useTools: false,
+      })
+      const text = String(neuriy.output || '').trim()
+      if (text) return { text, model: neuriy.model || requested, provider: 'frc7-neuriy' }
+    } catch {
+      // fall through to ElloFive
+    }
+  }
+  try {
+    return await ellofiveChat(user, sources, tools, wantsCode(user) ? 420 : wantsImage(user) ? 120 : 240, requested)
+  } catch (ellofiveError) {
+    try {
+      const neuriy = await neuriyChat({
+        model: requested.startsWith('neuriy.') ? requested : wantsCode(user) ? 'neuriy.code' : 'neuriy.chat',
+        message: sources.length
+          ? `${user}\n\nLive research:\n${formatSources(sources)}`
+          : user,
+        useTools: false,
+      })
+      const text = String(neuriy.output || '').trim()
+      if (text && !/You said:/i.test(text)) {
+        return { text, model: neuriy.model || 'neuriy.chat', provider: 'frc7-neuriy' }
+      }
+    } catch {
+      // fall through to grounded copy
+    }
+    const fallback = groundedFallback(user, sources, tools)
+    if (fallback) {
+      return { text: fallback, model: 'frc7-neuriy', provider: 'frc7-neuriy' }
+    }
+    const detail = ellofiveError instanceof Error ? ellofiveError.message : 'runtime unavailable'
+    throw createError({
+      statusCode: 502,
+      statusMessage: `ElloFive runtime is not answering (${detail}). Run bash scripts/install-ai.sh && bash scripts/start-ai.sh`,
+    })
+  }
 }
 
-function posterTitle(message: string) {
-  const cleaned = message
-    .replace(/^(please\s+)?(draw|make|create|generate)\s+(me\s+)?(a\s+)?(diagram|image|picture|chart|poster|illustration)\s+(of\s+)?/i, '')
-    .split(/\bwith\b/i)[0]
-    .replace(/[?.!]+$/g, '')
-    .trim()
-  return cleaned || 'Diagram'
-}
-
-async function savePoster(title: string, answer: string) {
-  const lines = answer
-    .split(/\n+/)
-    .map(line => line.replace(/^[#*\-\d.\s]+/, '').trim())
-    .filter(line => line && !line.startsWith('```'))
-    .slice(0, 4)
+async function savePoster(title: string, answer: string, prompt: string) {
   const id = `${Date.now().toString(36)}`
   const dir = join(process.cwd(), 'public', 'ai-generated')
   await mkdir(dir, { recursive: true })
-  await writeFile(join(dir, `${id}.svg`), posterSvg(title, lines.length ? lines : [answer]), 'utf8')
+  await writeFile(join(dir, `${id}.svg`), renderIllustration(title, answer, prompt), 'utf8')
   return `/ai-generated/${id}.svg`
 }
 
 export default defineEventHandler(async (event) => {
   const body = await readBody(event)
   const message = String(body?.message || '').trim().slice(0, 2000)
+  const requested = String(body?.model || process.env.ELLOFIVE_MODEL || 'ellofive')
   if (!message) {
     throw createError({ statusCode: 400, statusMessage: 'A message is required' })
   }
 
-  const sources = wantsResearch(message) ? await research(message) : []
+  const liveSources = wantsResearch(message) ? await research(message) : []
+
   const intent = detectToolIntent(message)
   const tools = []
   if (intent) {
@@ -169,15 +155,16 @@ export default defineEventHandler(async (event) => {
   const prompt = wantsImage(message)
     ? `A diagram will be drawn from your labels. Reply with exactly four short labels, one per line, for this picture: ${message}. Do not refuse and do not add a preamble.`
     : message
-  const answer = await ollamaChat(prompt, sources, tools, wantsCode(message) ? 420 : wantsImage(message) ? 120 : 240)
-  const imageUrl = wantsImage(message) ? await savePoster(posterTitle(message), answer.text) : undefined
+  const answer = await composeAnswer(prompt, liveSources, tools, requested)
+  const imageUrl = wantsImage(message) ? await savePoster(posterTitle(message), answer.text, message) : undefined
 
   return {
-    answer: imageUrl ? `Here is the diagram.\n\n${answer.text}` : answer.text,
+    answer: imageUrl ? `Here is the image a programmer-style ElloFive studio made for you.\n\n${answer.text}` : answer.text,
     model: answer.model,
-    provider: 'ellofive',
+    provider: answer.provider,
+    runtime: getHost(),
     kind: wantsCode(message) ? 'code' : wantsImage(message) ? 'image' : wantsResearch(message) ? 'research' : 'chat',
     imageUrl,
-    sources: sources.map(({ title, url }) => ({ title, url }))
+    sources: liveSources.map(({ title, url }) => ({ title, url })),
   }
 })

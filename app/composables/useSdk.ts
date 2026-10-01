@@ -222,7 +222,8 @@ Connection established successfully. The SDK interface is active and prepared fo
 
   const generateChatResponse = async (
     prompt: string,
-    _files: Array<{ name: string; size: string }> = []
+    _files: Array<{ name: string; size: string }> = [],
+    extra: { model?: string; tone?: string } = {}
   ) => {
     return await $fetch<{
       answer: string
@@ -233,7 +234,8 @@ Connection established successfully. The SDK interface is active and prepared fo
       sources?: Array<{ title: string; url: string }>
     }>('/api/ai/chat', {
       method: 'POST',
-      body: { message: prompt }
+      body: { message: prompt, model: extra.model, tone: extra.tone },
+      timeout: 180_000
     })
   }
 

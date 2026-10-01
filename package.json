@@ -6,7 +6,10 @@
     "build": "nuxt build",
     "dev": "nuxt dev",
     "generate": "nuxt generate",
-    "preview": "nuxt preview"
+    "preview": "nuxt preview",
+    "ai:install": "bash scripts/install-ai.sh",
+    "ai:start": "bash scripts/start-ai.sh",
+    "ai:test": "bash scripts/test-ai.sh"
   },
   "dependencies": {
     "@nuxt/content": "^3.16.0",

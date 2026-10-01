@@ -1,0 +1,16 @@
+set env "prod"
+region ht
+lang ht
+
+network ayiti.gouv {
+  mode "secure"
+  protocol "ayiti-os-gov"
+}
+
+use model "ayiti.stats"
+
+run model ayiti.stats {
+  input "displacement"
+}
+
+print result

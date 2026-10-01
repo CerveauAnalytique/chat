@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>FRC7 Live · Neuriy AI</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;600;700&family=Syne:wght@700;800&display=swap" rel="stylesheet" />
+  <style>
+    :root { --ink:#101820; --muted:#3d5348; --accent:#0b6e4f; --line:rgba(16,24,32,.12); }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0; font-family: "DM Sans", sans-serif; color: var(--ink);
+      background: linear-gradient(160deg, #d5e8dc, #eef4f0 50%, #f2ebe4); min-height: 100vh;
+    }
+    main { width: min(1000px, calc(100% - 2rem)); margin: 0 auto 2rem; padding-top: 1.5rem; }
+    h1 { font-family: Syne, sans-serif; font-size: clamp(1.8rem,4vw,2.6rem); margin: 0 0 .5rem; }
+    p { color: var(--muted); max-width: 50ch; }
+    .grid { display: grid; gap: .85rem; grid-template-columns: repeat(auto-fit,minmax(220px,1fr)); margin-top: 1.25rem; }
+    img { width: 100%; border-radius: .45rem; border: 1px solid var(--line); background: #fff; }
+    a { color: var(--accent); font-weight: 600; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>FRC7 · Neuriy AI</h1>
+    <p>Updated demo gallery — ChatGPT-style Neuriy models + Ayiti OS GoV. Photos from the FRC7.2 control panel.</p>
+    <p><a href="https://github.com/EricksonAtHome/FRC7">Open GitHub repo</a> · <a href="https://ericksonathome.github.io/FRC7/">GitHub Pages</a></p>
+    <div class="grid">
+      <img src="img/frc7-control-panel.png" alt="Control panel" />
+      <img src="img/frc7-neuriy-chat.png" alt="Neuriy chat" />
+      <img src="img/frc7-neuriy-code.png" alt="Neuriy code" />
+      <img src="img/frc7-neuriy-models.png" alt="Models list" />
+    </div>
+  </main>
+</body>
+</html>

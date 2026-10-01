@@ -1,75 +1,52 @@
-# Nuxt Content Starter
+# Prysel Ai — ElloFive + FRC7
 
-Look at the [Nuxt Content documentation](https://content.nuxt.com) to learn more.
+This chat app runs a **real local AI stack**:
 
-## Setup
+| Piece | Source | Role |
+| --- | --- | --- |
+| **ElloFive** | [EricksonAtHome/ElloFive](https://github.com/EricksonAtHome/ElloFive) | Local LLM on Ollama (`ellofive`) |
+| **FRC7 / Neuriy** | [EricksonAtHome/FRC7](https://github.com/EricksonAtHome/FRC7) | Tools, sessions, FRCL gateway |
+| **Prysel chat UI** | this repo | Ask → answer, research, code, images |
 
-Make sure to install dependencies:
+When you ask, the model answers. It can look up live facts, write a program, and generate an image.
+
+## Install the real AI
 
 ```bash
-# npm
 npm install
-
-# pnpm
-pnpm install
-
-# yarn
-yarn install
-
-# bun
-bun install
+bash scripts/install-ai.sh    # Ollama + llama3.2:1b + ellofive model + FRC7
+bash scripts/start-ai.sh      # runtime :11434 and FRC7 gateway :3100
+npm run dev                   # chat UI http://127.0.0.1:3000
 ```
 
-## Development Server
-
-Start the development server on `http://localhost:3000`:
+GPU hosts can use a larger base:
 
 ```bash
-# npm
-npm run dev
-
-# pnpm
-pnpm dev
-
-# yarn
-yarn dev
-
-# bun
-bun run dev
+ELLOFIVE_BASE_MODEL=qwen2.5:7b bash scripts/install-ai.sh
 ```
 
-## Production
+## Try it
 
-Build the application for production:
+In the chat box:
+
+1. **Research** — `What is the population of France? Find real data.`
+2. **Program** — `Write a Python function greet(name) that returns Hello, name.`
+3. **Image** — `Draw a picture of a programmer making a sunset mountain image.`
+
+Or:
 
 ```bash
-# npm
-npm run build
-
-# pnpm
-pnpm build
-
-# yarn
-yarn build
-
-# bun
-bun run build
+bash scripts/test-ai.sh http://127.0.0.1:3000
 ```
 
-Locally preview production build:
+## Architecture
 
-```bash
-# npm
-npm run preview
-
-# pnpm
-pnpm preview
-
-# yarn
-yarn preview
-
-# bun
-bun run preview
+```
+Browser  →  /api/ai/chat
+              ├─ FRC7 Neuriy tools (time, calculator, marketplace)
+              ├─ Live research (Wikipedia / DuckDuckGo)
+              ├─ ElloFive LLM (Ollama)
+              └─ Image studio (SVG illustration files)
 ```
 
-Check out the [deployment documentation](https://nuxt.com/docs/getting-started/deployment) for more information.
+Vendored sources live in `vendor/ellofive` and `vendor/frc7`.
